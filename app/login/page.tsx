@@ -15,18 +15,17 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { useUserStore } from "@/store/userStore";
 
 const LoginPage = () => {
+  const { login, isError } = useUserStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    await login(email, password, router);
     // Simulating authentication process and setting cookie
-    const loginDetails = { email, password }; // Normally you'd get this from an API response
-    Cookies.set("loginDetails", JSON.stringify(loginDetails), { expires: 1 }); // Cookie expires in 1 day
-    router.push("/dashboard");
-    console.log(loginDetails);
   };
 
   const isLoginDisabled = !email || !password;
@@ -49,7 +48,7 @@ const LoginPage = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="Enter Your Email Here.."
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -58,6 +57,7 @@ const LoginPage = () => {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
+                placeholder="Enter Your Password here.."
                 id="password"
                 type="password"
                 required
@@ -90,6 +90,7 @@ const LoginPage = () => {
             </div>
           </CardFooter>
         </form>
+        {isError && <span>{isError}</span>}
       </Card>
     </div>
   );

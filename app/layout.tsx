@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import { Roboto_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 
 // const poppins = Poppins({
 //   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body className={roboto_mono.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

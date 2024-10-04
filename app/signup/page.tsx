@@ -1,4 +1,5 @@
-"use client";
+"use client"; // Make sure this is at the top of the file
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,18 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Check, X, AlertTriangle } from "lucide-react";
+import { useUserStore } from "@/store/userStore"; // Import the Zustand store
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
 
 const SignUpPage = () => {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const { signUp, isLoading, isError } = useUserStore(); // Zustand store
 
   const passwordCriteria = [
     { label: "At least 8 characters", regex: /.{8,}/ },
@@ -25,7 +34,7 @@ const SignUpPage = () => {
     { label: "At least one number", regex: /\d/ },
     {
       label: "At least one special character",
-      regex: /[!@#$%^&*(),.?":{}|<>]/,
+      regex: /[!@#$%^&*(),.?\":{}|<>]/,
     },
   ];
 
@@ -40,6 +49,14 @@ const SignUpPage = () => {
   const allCriteriaMet = passwordStrength.every((criterion) => criterion.isMet);
   const passwordsMatch = password === confirmPassword && password !== "";
 
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (allCriteriaMet && passwordsMatch) {
+      await signUp(name, email, password, router);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-slate-900 to-slate-700 p-4">
       <Card className="w-full max-w-3xl">
@@ -51,84 +68,99 @@ const SignUpPage = () => {
             Enter your details below to create your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="John Doe" required />
+        <form onSubmit={handleSubmit}>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  placeholder="John Doe"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="john@example.com"
-                required
-              />
+            <div className="mt-6">
+              <p className="text-sm font-medium mb-2">Password Strength:</p>
+              <div className="grid grid-cols-2 gap-2">
+                {passwordStrength.map((criterion, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    {criterion.isMet ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <X className="w-4 h-4 text-red-500" />
+                    )}
+                    <span
+                      className={`text-sm ${
+                        criterion.isMet ? "text-green-500" : "text-gray-500"
+                      }`}
+                    >
+                      {criterion.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+            {password && confirmPassword && !passwordsMatch && (
+              <div className="mt-4 flex items-center space-x-2 text-yellow-500">
+                <AlertTriangle className="w-4 h-4" />
+                <span className="text-sm">Passwords do not match</span>
+              </div>
+            )}
+            {isError && (
+              <div className="mt-4 text-center text-red-500">{isError}</div>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-col items-center space-y-4">
+            <Button
+              type="submit"
+              className="w-full max-w-md"
+              disabled={!allCriteriaMet || !passwordsMatch || isLoading}
+            >
+              {isLoading ? "Signing Up..." : "Sign Up"}
+            </Button>
+            <div className="text-sm text-center text-gray-500 dark:text-gray-400">
+              Already have an account?{" "}
+              <Link href="/login" className="text-blue-500 hover:underline">
+                Log in
+              </Link>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="mt-6">
-            <p className="text-sm font-medium mb-2">Password Strength:</p>
-            <div className="grid grid-cols-2 gap-2">
-              {passwordStrength.map((criterion, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  {criterion.isMet ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <X className="w-4 h-4 text-red-500" />
-                  )}
-                  <span
-                    className={`text-sm ${
-                      criterion.isMet ? "text-green-500" : "text-gray-500"
-                    }`}
-                  >
-                    {criterion.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {password && confirmPassword && !passwordsMatch && (
-            <div className="mt-4 flex items-center space-x-2 text-yellow-500">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="text-sm">Passwords do not match</span>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-col items-center space-y-4">
-          <Button
-            className="w-full max-w-md"
-            disabled={!allCriteriaMet || !passwordsMatch}
-          >
-            Sign Up
-          </Button>
-          <div className="text-sm text-center text-gray-500 dark:text-gray-400">
-            Already have an account?{" "}
-            <Link href="/login" className="text-blue-500 hover:underline">
-              Log in
-            </Link>
-          </div>
-        </CardFooter>
+          </CardFooter>
+        </form>
+        {isError && <span>isError</span>}
       </Card>
     </div>
   );

@@ -79,7 +79,6 @@ const Sidebar = () => {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   // const [isAnimating, setIsAnimating] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
