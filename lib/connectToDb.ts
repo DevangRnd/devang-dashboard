@@ -8,18 +8,29 @@ const connectToDb = async () => {
     return;
   }
 
+  if (!process.env.MONGO_URI) {
+    throw new Error(
+      "NEXT_PUBLIC_MONGO_URI is not defined in the environment variables"
+    );
+  }
+
   try {
-    const db = await mongoose.connect(process.env.NEXT_PUBLIC_MONGO_URI!);
+    const db = await mongoose.connect(process.env.MONGO_URI!, {
+      serverSelectionTimeoutMS: 5000, // 5 seconds timeout for server selection
+      socketTimeoutMS: 45000, // 45 seconds timeout for socket operations
+    });
 
     isConnected = db.connections[0].readyState === 1; // 1 indicates connected
 
     if (isConnected) {
       console.log("=> New database connection established");
     } else {
-      console.log("=> Failed to connect to database");
+      throw new Error("Failed to establish database connection");
     }
   } catch (error) {
-    console.error("=> Error connecting to the database", error);
+    console.error("=> Error connecting to the database:", error);
+    isConnected = false; // Ensure isConnected is false if connection fails
+    throw error; // Re-throw the error to be handled by the caller
   }
 };
 

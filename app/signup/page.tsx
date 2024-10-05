@@ -13,7 +13,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Check, X, AlertTriangle } from "lucide-react";
+import { Check, X, AlertTriangle, Loader2 } from "lucide-react";
 import { useUserStore } from "@/store/userStore"; // Import the Zustand store
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
@@ -53,7 +53,20 @@ const SignUpPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (allCriteriaMet && passwordsMatch) {
-      await signUp(name, email, password, router);
+      try {
+        await signUp(name, email, password);
+        toast({
+          title: "Account created successfully!",
+          description: "You are now being redirected to the dashboard.",
+        });
+        router.push("/dashboard");
+      } catch (error: any) {
+        toast({
+          title: "Error Occured",
+          description: isError,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -140,18 +153,23 @@ const SignUpPage = () => {
                 <span className="text-sm">Passwords do not match</span>
               </div>
             )}
-            {isError && (
-              <div className="mt-4 text-center text-red-500">{isError}</div>
-            )}
           </CardContent>
           <CardFooter className="flex flex-col items-center space-y-4">
-            <Button
-              type="submit"
-              className="w-full max-w-md"
-              disabled={!allCriteriaMet || !passwordsMatch || isLoading}
-            >
-              {isLoading ? "Signing Up..." : "Sign Up"}
-            </Button>
+            {isLoading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing Up..Please wait
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-full max-w-md"
+                disabled={!allCriteriaMet || !passwordsMatch || isLoading}
+              >
+                Sign Up
+              </Button>
+            )}
+
             <div className="text-sm text-center text-gray-500 dark:text-gray-400">
               Already have an account?{" "}
               <Link href="/login" className="text-blue-500 hover:underline">
@@ -160,7 +178,6 @@ const SignUpPage = () => {
             </div>
           </CardFooter>
         </form>
-        {isError && <span>isError</span>}
       </Card>
     </div>
   );

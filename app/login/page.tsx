@@ -16,6 +16,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { useUserStore } from "@/store/userStore";
+import { toast } from "@/hooks/use-toast";
 
 const LoginPage = () => {
   const { login, isError } = useUserStore();
@@ -24,8 +25,21 @@ const LoginPage = () => {
   const router = useRouter();
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await login(email, password, router);
-    // Simulating authentication process and setting cookie
+    try {
+      await login(email, password);
+      toast({
+        title: "Success",
+        description: "Logged In Succesfully",
+        variant: "default",
+      });
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error Occured",
+        description: isError,
+        variant: "destructive",
+      });
+    }
   };
 
   const isLoginDisabled = !email || !password;
@@ -90,7 +104,6 @@ const LoginPage = () => {
             </div>
           </CardFooter>
         </form>
-        {isError && <span>{isError}</span>}
       </Card>
     </div>
   );

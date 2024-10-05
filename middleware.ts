@@ -1,26 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  //* Get the authentication status from cookies
-  const isAuthenticated = request.cookies.has("authToken");
+  const token = request.cookies.get("token");
   const { pathname } = request.nextUrl;
-
-  const isPublicRoute = ["/login", "/signup"].includes(pathname);
-
-  if (isAuthenticated && isPublicRoute) {
-    //* Redirect authenticated users trying to access public routes to dashboard
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
-
-  if (!isAuthenticated && !isPublicRoute) {
-    //* Redirect unauthenticated users trying to access private routes to login
+  // If trying to access a protected route without a token, redirect to login
+  if (!token && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  //* Allow the request to continue
+  // If trying to access login/signup pages with a token, redirect to dashboard
+  if (token && (pathname === "/login" || pathname === "/signup")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/dashboard/:path*", "/login", "/signup", "/"],
 };

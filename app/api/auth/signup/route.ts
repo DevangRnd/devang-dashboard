@@ -1,54 +1,54 @@
-import connectToDb from "@/lib/connectToDb";
-import User from "@/models/UserModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-export const POST = async (request: NextRequest) => {
+import connectToDb from "@/lib/connectToDb";
+import User from "@/models/UserModel";
+
+export async function POST(request: NextRequest) {
   try {
     const { name, email, password } = await request.json();
-    // Validate required fields
-    if (!name || !email || !password) {
+
+    await connectToDb();
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return NextResponse.json(
-        { message: "Fields are required" },
+        { message: "Email already exists" },
         { status: 400 }
       );
     }
-    await connectToDb();
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ message: "Email Already Exists" });
-    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
-    const token = jwt.sign(
-      { id: newUser._id, email: newUser.email },
-      process.env.NEXT_PUBLIC_JWT_SECRET!,
-      { expiresIn: "5h" }
-    );
-    // Set the JWT token in a cookie
+
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, {
+      expiresIn: "1h",
+    });
+
     const response = NextResponse.json(
       {
-        message: "Signup successful",
-        user: { id: newUser._id, email: newUser.email },
+        message: "User created successfully",
+        user: { id: newUser._id, name: newUser.name, email: newUser.email },
       },
       { status: 201 }
     );
 
+    // Set HttpOnly cookie
     response.cookies.set("token", token, {
-      httpOnly: true, // Helps prevent XSS
-      secure: process.env.NODE_ENV === "production", // Use secure cookie in production
-      maxAge: 60 * 60, // 1 hour
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3600, // 1 hour
       path: "/",
     });
 
     return response;
   } catch (error) {
-    console.error("Error in POST handler:", error);
-    return NextResponse.json({ error: "Some Error Occurred" }, { status: 500 });
+    console.error("Signup error:", error);
+    return NextResponse.json(
+      { message: "Error creating user" },
+      { status: 500 }
+    );
   }
-};
+}

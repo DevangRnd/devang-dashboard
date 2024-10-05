@@ -28,7 +28,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import Cookies from "js-cookie";
+
+import { useUserStore } from "@/store/userStore";
+import { toast } from "@/hooks/use-toast";
 const menuItems = [
   {
     id: "dashboard",
@@ -75,27 +77,17 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
+  const { logout, isError, user } = useUserStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   // const [isAnimating, setIsAnimating] = useState(false);
-
+  console.log(user);
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
   const pathname = usePathname();
-  // const toggleTheme = () => {
-  //   setIsAnimating(true);
-  //   setTimeout(() => {
-  //     setTheme(theme === "dark" ? "light" : "dark");
-  //   }, 500); // Wait for half of the animation before changing the theme
-  // };
-  // useEffect(() => {
-  //   if (isAnimating) {
-  //     const timer = setTimeout(() => setIsAnimating(false), 1000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [isAnimating]);
+
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const toggleSubmenu = (id: string) => {
@@ -125,9 +117,19 @@ const Sidebar = () => {
   };
 
   const isActive = (href: string) => pathname === href;
-  const handleLogOut = () => {
-    Cookies.remove("loginDetails");
-    router.push("/login");
+  const handleLogOut = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Suceesfully Logged Out",
+      });
+      router.replace("/login");
+    } catch (error: any) {
+      toast({
+        title: "Suceesfully Logged Out",
+        description: isError,
+      });
+    }
   };
   return (
     <div
@@ -254,6 +256,7 @@ const Sidebar = () => {
             {theme === "dark" ? "Dark Mode" : "Light Mode"}
           </span>
         )}
+
         {/* Theme Switcher */}
         <button
           onClick={toggleTheme}
