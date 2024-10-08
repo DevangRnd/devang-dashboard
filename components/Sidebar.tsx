@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ChevronRight,
   LayoutDashboard,
   Lightbulb,
@@ -14,12 +20,9 @@ import {
   Users,
   LogOut,
   ChevronDown,
-  Moon,
-  Sun,
 } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +34,8 @@ import {
 
 import { useUserStore } from "@/store/userStore";
 import { toast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+
 const menuItems = [
   {
     id: "dashboard",
@@ -81,15 +86,10 @@ const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  // const [isAnimating, setIsAnimating] = useState(false);
-  console.log(user);
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
   const pathname = usePathname();
-
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  // console.log(user?.name);
   const toggleSubmenu = (id: string) => {
     if (!isExpanded) {
       setIsExpanded(true);
@@ -98,7 +98,6 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
-    // Open the submenu if the current path matches a subitem
     menuItems.forEach((item) => {
       if (
         item.subItems &&
@@ -107,34 +106,38 @@ const Sidebar = () => {
         setOpenSubmenu(item.id);
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Function to get the full path
   const getFullPath = (href: string) => {
-    const dashboardRoot = "/dashboard"; // Adjust this if your dashboard root changes
+    const dashboardRoot = "/dashboard";
     return href ? `${dashboardRoot}/${href}` : dashboardRoot;
   };
 
   const isActive = (href: string) => pathname === href;
+
   const handleLogOut = async () => {
     try {
       await logout();
       toast({
-        title: "Suceesfully Logged Out",
+        title: "Successfully Logged Out",
       });
       router.replace("/login");
     } catch (error: any) {
       toast({
-        title: "Suceesfully Logged Out",
+        title: "Error Logging Out",
         description: isError,
       });
     }
   };
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <div
       className={cn(
-        "flex flex-col h-[100dvh] bg-background dark:bg-slate-700 border-r transition-all duration-300 ease-in-out relative ",
+        "flex flex-col h-[100dvh] bg-background dark:bg-slate-700 border-r transition-all duration-300 ease-in-out relative",
         isExpanded ? "w-64 rounded-tr-3xl rounded-br-3xl" : "w-20"
       )}
     >
@@ -156,6 +159,7 @@ const Sidebar = () => {
           />
         </Button>
       </div>
+
       <nav
         className={cn(
           "flex-1 px-2 py-4 overflow-y-auto",
@@ -245,56 +249,81 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
-      <div
-        className={cn(
-          "flex items-center p-4 border-t",
-          isExpanded ? "justify-between" : "justify-center"
-        )}
-      >
-        {isExpanded && (
-          <span className="text-sm font-medium dark:text-white">
-            {theme === "dark" ? "Dark Mode" : "Light Mode"}
-          </span>
-        )}
 
-        {/* Theme Switcher */}
-        <button
-          onClick={toggleTheme}
-          className="relative w-12 h-6 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-yellow-400"
-          style={{
-            backgroundColor: theme === "dark" ? "#1f2937" : "#fde68a",
-          }}
+      <div className="mt-auto border-t">
+        <div
+          className={cn(
+            "flex items-center p-4",
+            isExpanded ? "justify-between" : "justify-center"
+          )}
         >
-          <span className="sr-only">Toggle theme</span>
-          <div
-            className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-300 ${
-              theme === "dark"
-                ? "bg-gray-600 translate-x-0"
-                : "bg-white translate-x-6"
-            }`}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Avatar className="cursor-pointer">
+                  <AvatarFallback>
+                    {user?.name?.[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{user?.name}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {isExpanded && (
+            <span className="text-sm font-medium dark:text-white ml-3 truncate">
+              {user?.name}
+            </span>
+          )}
+        </div>
+
+        <div
+          className={cn(
+            "flex items-center p-4",
+            isExpanded ? "justify-between" : "justify-center"
+          )}
+        >
+          {isExpanded && (
+            <span className="text-sm font-medium dark:text-white">
+              {theme === "dark" ? "Dark Mode" : "Light Mode"}
+            </span>
+          )}
+          <button
+            onClick={toggleTheme}
+            className="relative w-12 h-6 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-yellow-400"
+            style={{
+              backgroundColor: theme === "dark" ? "#1f2937" : "#fde68a",
+            }}
           >
-            {/* Filament */}
+            <span className="sr-only">Toggle theme</span>
             <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                theme === "dark" ? "opacity-0" : "opacity-100"
+              className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-300 ${
+                theme === "dark"
+                  ? "bg-gray-600 translate-x-0"
+                  : "bg-white translate-x-6"
               }`}
             >
-              <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 rotate-45" />
-              <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 -rotate-45" />
+              <div
+                className={`absolute inset-0 transition-opacity duration-300 ${
+                  theme === "dark" ? "opacity-0" : "opacity-100"
+                }`}
+              >
+                <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 rotate-45" />
+                <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 -rotate-45" />
+              </div>
             </div>
-          </div>
-          {/* Glow effect */}
-          <div
-            className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
-              theme === "dark" ? "opacity-0" : "opacity-40"
-            }`}
-            style={{
-              background: "radial-gradient(circle, #fef08a, transparent 70%)",
-            }}
-          />
-        </button>
-      </div>
-      <div className="p-4 border-t">
+            <div
+              className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
+                theme === "dark" ? "opacity-0" : "opacity-40"
+              }`}
+              style={{
+                background: "radial-gradient(circle, #fef08a, transparent 70%)",
+              }}
+            />
+          </button>
+        </div>
+
         <Button
           variant="ghost"
           className={cn(
@@ -304,7 +333,7 @@ const Sidebar = () => {
           onClick={() => setIsLogoutModalOpen(true)}
         >
           <LogOut className="h-5 w-5 flex-shrink-0 mr-3" />
-          {isExpanded && <span>LogOut</span>}
+          {isExpanded && <span>Logout</span>}
         </Button>
       </div>
 
@@ -323,7 +352,7 @@ const Sidebar = () => {
             >
               Cancel
             </Button>
-            <Button variant={"destructive"} onClick={handleLogOut}>
+            <Button variant="destructive" onClick={handleLogOut}>
               Logout
             </Button>
           </DialogFooter>
@@ -332,4 +361,5 @@ const Sidebar = () => {
     </div>
   );
 };
+
 export default Sidebar;

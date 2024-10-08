@@ -15,10 +15,7 @@ const connectToDb = async () => {
   }
 
   try {
-    const db = await mongoose.connect(process.env.MONGO_URI!, {
-      serverSelectionTimeoutMS: 5000, // 5 seconds timeout for server selection
-      socketTimeoutMS: 45000, // 45 seconds timeout for socket operations
-    });
+    const db = await mongoose.connect(process.env.MONGO_URI!);
 
     isConnected = db.connections[0].readyState === 1; // 1 indicates connected
 

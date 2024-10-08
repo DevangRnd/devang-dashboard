@@ -1,54 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import connectToDb from "@/lib/connectToDb";
+import { AxiosError } from "axios";
+import { hashPassword } from "@/lib/hashPassword";
 import User from "@/models/UserModel";
-
-export async function POST(request: NextRequest) {
+import connectToDb from "@/lib/connectToDb";
+import { generateToken } from "@/lib/generateToken";
+export const POST = async (request: NextRequest) => {
+  connectToDb();
   try {
     const { name, email, password } = await request.json();
-
-    await connectToDb();
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { message: "Email already exists" },
-        { status: 400 }
+        { message: "This email is alerady in use" },
+        { status: 404 }
       );
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
+    const hashedPassword = await hashPassword(password);
+    const newUser = await new User({ name, email, password: hashedPassword });
     await newUser.save();
-
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, {
-      expiresIn: "1h",
-    });
-
+    const token = generateToken(newUser._id.toString(), newUser.email);
     const response = NextResponse.json(
-      {
-        message: "User created successfully",
-        user: { id: newUser._id, name: newUser.name, email: newUser.email },
-      },
-      { status: 201 }
+      { newUser, success: true },
+      { status: 200 }
     );
-
-    // Set HttpOnly cookie
     response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 3600, // 1 hour
-      path: "/",
+      httpOnly: true, // Secure, not accessible via JavaScript
+      secure: process.env.NODE_ENV === "production", // Ensure secure flag is set in production
+      maxAge: 60 * 60 * 24, // 24 hours expiration (in seconds)
+      path: "/", // Path for the cookie
     });
 
     return response;
-  } catch (error) {
-    console.error("Signup error:", error);
-    return NextResponse.json(
-      { message: "Error creating user" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      // Handle Axios-specific errors
+      return NextResponse.json(
+        { message: error.response?.data?.message || "Request failed" },
+        { status: error.response?.status || 500 }
+      );
+    } else if (error instanceof Error) {
+      return NextResponse.json(
+        { message: error || "Request failed" },
+        { status: 500 }
+      );
+    } else {
+      // Handle unexpected error types
+      return NextResponse.json(
+        { message: "An unexpected error occurred" },
+        { status: 500 }
+      );
+    }
   }
-}
+};

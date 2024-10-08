@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-
-export const POST = async (request: NextRequest) => {
+import { NextResponse } from "next/server";
+import { AxiosError } from "axios";
+export const POST = async () => {
   try {
-    // Create a response object
     const response = NextResponse.json(
       { message: "Logged out successfully" },
       { status: 200 }
@@ -18,11 +17,24 @@ export const POST = async (request: NextRequest) => {
     });
 
     return response;
-  } catch (error) {
-    console.error("Logout error:", error);
-    return NextResponse.json(
-      { message: "Error during logout" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      // Handle Axios-specific errors
+      return NextResponse.json(
+        { message: error.response?.data?.message || "Request failed" },
+        { status: error.response?.status || 500 }
+      );
+    } else if (error instanceof Error) {
+      return NextResponse.json(
+        { message: error.message || "Request failed" },
+        { status: 500 }
+      );
+    } else {
+      // Handle unexpected error types
+      return NextResponse.json(
+        { message: "An unexpected error occurred" },
+        { status: 500 }
+      );
+    }
   }
 };

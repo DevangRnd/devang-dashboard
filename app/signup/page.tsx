@@ -1,5 +1,4 @@
-"use client"; // Make sure this is at the top of the file
-
+"use client";
 import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,7 @@ const SignUpPage = () => {
     { label: "At least one number", regex: /\d/ },
     {
       label: "At least one special character",
-      regex: /[!@#$%^&*(),.?\":{}|<>]/,
+      regex: /[!@#$%^&*(),.?":{}|<>]/,
     },
   ];
 
@@ -54,16 +53,25 @@ const SignUpPage = () => {
     e.preventDefault();
     if (allCriteriaMet && passwordsMatch) {
       try {
-        await signUp(name, email, password);
+        const success = await signUp(name, email, password);
+
+        if (success) {
+          toast({
+            title: "Account created successfully!",
+            description: "You are now being redirected to the dashboard.",
+          });
+          router.push("/dashboard");
+        } else {
+          toast({
+            title: "Error Occurred",
+            description: isError || "An error occurred during sign up",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
         toast({
-          title: "Account created successfully!",
-          description: "You are now being redirected to the dashboard.",
-        });
-        router.push("/dashboard");
-      } catch (error: any) {
-        toast({
-          title: "Error Occured",
-          description: isError,
+          title: "Error Occurred",
+          description: "An unexpected error occurred during sign up",
           variant: "destructive",
         });
       }
@@ -88,7 +96,6 @@ const SignUpPage = () => {
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  placeholder="John Doe"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -99,7 +106,6 @@ const SignUpPage = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -169,7 +175,6 @@ const SignUpPage = () => {
                 Sign Up
               </Button>
             )}
-
             <div className="text-sm text-center text-gray-500 dark:text-gray-400">
               Already have an account?{" "}
               <Link href="/login" className="text-blue-500 hover:underline">

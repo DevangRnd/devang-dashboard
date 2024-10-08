@@ -17,9 +17,10 @@ import {
 } from "@/components/ui/card";
 import { useUserStore } from "@/store/userStore";
 import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const LoginPage = () => {
-  const { login, isError } = useUserStore();
+  const { login, isError, isLoading } = useUserStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -89,13 +90,21 @@ const LoginPage = () => {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button
-              className="w-full disabled:cursor-not-allowed"
-              type="submit"
-              disabled={isLoginDisabled}
-            >
-              Log In
-            </Button>
+            {isLoading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging In
+              </Button>
+            ) : (
+              <Button
+                className="w-full disabled:cursor-not-allowed"
+                type="submit"
+                disabled={isLoginDisabled}
+              >
+                Log In
+              </Button>
+            )}
+
             <div className="text-sm text-center text-gray-500 dark:text-gray-400">
               Don&apos;t have an account?{" "}
               <Link href="/signup" className="text-blue-500 hover:underline">
