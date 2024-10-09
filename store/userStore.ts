@@ -12,7 +12,7 @@ interface UserStore {
   isLoading: boolean;
   isError: string | null;
   signUp: (name: string, email: string, password: string) => Promise<boolean>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   getUser: () => Promise<void>;
 }
@@ -64,21 +64,30 @@ export const useUserStore = create<UserStore>((set) => ({
 
   login: async (email: string, password: string) => {
     set({ isLoading: true, isError: null });
+
     try {
       const response = await axios.post("/api/auth/login", {
         email,
         password,
       });
-
-      const userData = response.data.user;
-      set({
-        user: {
-          _id: userData._id,
-          name: userData.name,
-          email: userData.email,
-        },
-        isLoading: false,
-      });
+      if (response.data.success) {
+        const userData = response.data.user;
+        set({
+          user: {
+            _id: userData._id,
+            name: userData.name,
+            email: userData.email,
+          },
+          isLoading: false,
+        });
+        return true;
+      } else {
+        set({
+          isError: response.data.message || "Sign up failed",
+          isLoading: false,
+        });
+        return false; // Indicate failure
+      }
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         const errorMessage =

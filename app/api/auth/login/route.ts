@@ -3,8 +3,10 @@ import User from "@/models/UserModel";
 import bcrypt from "bcryptjs"; // To compare the hashed password
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import connectToDb from "@/lib/connectToDb";
 
 export const POST = async (request: NextRequest) => {
+  connectToDb();
   try {
     const { email, password } = await request.json();
 

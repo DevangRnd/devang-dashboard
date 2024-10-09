@@ -50,7 +50,7 @@ const menuItems = [
     subItems: [
       { label: "SSL Data", href: "ssl-data" },
       { label: "Bulk Approve", href: "bulk-approve" },
-      { label: "Field Engineers", href: "field-engineers" },
+      { label: "Field Engineers", href: "field-engineer" },
       { label: "Swap Requests", href: "swap-requests" },
       { label: "Lights Location", href: "lights-location" },
     ],

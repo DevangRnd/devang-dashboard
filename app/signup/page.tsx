@@ -24,8 +24,7 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { signUp, isLoading, isError } = useUserStore(); // Zustand store
-
+  const { signUp, isLoading, isError } = useUserStore();
   const passwordCriteria = [
     { label: "At least 8 characters", regex: /.{8,}/ },
     { label: "At least one uppercase letter", regex: /[A-Z]/ },
@@ -68,6 +67,7 @@ const SignUpPage = () => {
             variant: "destructive",
           });
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast({
           title: "Error Occurred",
