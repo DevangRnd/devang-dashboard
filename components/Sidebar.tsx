@@ -5,12 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import Link from "next/link";
+import { useUserStore } from "@/store/userStore";
+import { useTheme } from "next-themes";
 import {
   ChevronRight,
   LayoutDashboard,
@@ -21,8 +18,7 @@ import {
   LogOut,
   ChevronDown,
 } from "lucide-react";
-import Link from "next/link";
-import { useTheme } from "next-themes";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -31,46 +27,78 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-import { useUserStore } from "@/store/userStore";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 
 const menuItems = [
   {
     id: "dashboard",
     icon: LayoutDashboard,
     label: "Dashboard",
-    href: "", // This will be the root of the dashboard
+    href: "",
+    roles: ["admin", "user", "production"],
   },
   {
     id: "solar-street-lights",
     icon: Lightbulb,
     label: "Solar Street Lights",
+    roles: ["admin", "user", "production"],
     subItems: [
-      { label: "SSL Data", href: "ssl-data" },
-      { label: "Bulk Approve", href: "bulk-approve" },
-      { label: "Field Engineers", href: "field-engineer" },
-      { label: "Swap Requests", href: "swap-requests" },
-      { label: "Lights Location", href: "lights-location" },
+      {
+        label: "SSL Data",
+        href: "ssl-data",
+        roles: ["admin", "user", "production"],
+      },
+      { label: "Bulk Approve", href: "bulk-approve", roles: ["admin"] },
+      {
+        label: "Field Engineers",
+        href: "field-engineer",
+        roles: ["admin", "production"],
+      },
+      {
+        label: "Swap Requests",
+        href: "swap-requests",
+        roles: ["admin", "production"],
+      },
+      {
+        label: "Lights Location",
+        href: "lights-location",
+        roles: ["admin", "user", "production"],
+      },
     ],
   },
   {
     id: "report",
     icon: FileText,
     label: "Report",
+    roles: ["admin", "production"],
     subItems: [
-      { label: "Light Working Days", href: "light-working-days" },
-      { label: "Fault Rectification Logs", href: "fault-rectification-logs" },
+      {
+        label: "Light Working Days",
+        href: "light-working-days",
+        roles: ["admin", "production"],
+      },
+      {
+        label: "Fault Rectification Logs",
+        href: "fault-rectification-logs",
+        roles: ["admin", "production"],
+      },
     ],
   },
   {
     id: "users",
     icon: Users,
     label: "Users",
+    roles: ["admin"],
     subItems: [
-      { label: "Sub Users", href: "sub-users" },
-      { label: "Field Engineers", href: "field-engineers" },
+      { label: "Sub Users", href: "sub-users", roles: ["admin"] },
+      { label: "Field Engineers", href: "field-engineers", roles: ["admin"] },
+      { label: "All Users", href: "users", roles: ["admin"] },
     ],
   },
   {
@@ -78,17 +106,18 @@ const menuItems = [
     icon: Settings,
     label: "Settings",
     href: "settings",
+    roles: ["admin", "user", "production"],
   },
 ];
 
-const Sidebar = () => {
-  const { logout, isError, user } = useUserStore();
+export default function Component() {
+  const { user, logout, isError } = useUserStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -102,23 +131,22 @@ const Sidebar = () => {
     setOpenSubmenu(openSubmenu === id ? null : id);
   };
 
-  useEffect(() => {
-    menuItems.forEach((item) => {
-      if (
-        item.subItems &&
-        item.subItems.some((subItem) => isActive(getFullPath(subItem.href)))
-      ) {
-        setOpenSubmenu(item.id);
-      }
-    });
-  }, [pathname]);
-
   const getFullPath = (href: string) => {
     const dashboardRoot = "/dashboard";
     return href ? `${dashboardRoot}/${href}` : dashboardRoot;
   };
 
   const isActive = (href: string) => pathname === href;
+
+  const hasAccessToItem = (item: any) => {
+    return item.roles.includes(user?.role);
+  };
+
+  const hasAccessToAnySubItem = (item: any) => {
+    return item.subItems.some((subItem: any) =>
+      subItem.roles.includes(user?.role)
+    );
+  };
 
   const handleLogOut = async () => {
     try {
@@ -165,93 +193,101 @@ const Sidebar = () => {
         </Button>
       </div>
 
-      <nav
-        className={cn(
-          "flex-1 px-2 py-4 overflow-y-auto",
-          "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100",
-          "dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800",
-          openSubmenu && "overflow-hidden"
-        )}
-      >
+      <nav className="flex-1 px-2 py-4 overflow-y-auto">
         <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.id}>
-              {item.subItems ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "w-full flex items-center py-3 transition-colors duration-200",
-                      isExpanded ? "justify-start px-4" : "justify-center",
-                      item.subItems.some((subItem) =>
-                        isActive(getFullPath(subItem.href))
-                      ) && "bg-accent text-accent-foreground"
-                    )}
-                    onClick={() => toggleSubmenu(item.id)}
-                  >
-                    <item.icon className="h-5 w-5 flex-shrink-0" />
+          {menuItems.map((item) => {
+            if (
+              !hasAccessToItem(item) &&
+              (!item.subItems || !hasAccessToAnySubItem(item))
+            ) {
+              return null;
+            }
+
+            return (
+              <li key={item.id}>
+                {item.subItems ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full flex items-center py-3 transition-colors duration-200",
+                        isExpanded ? "justify-start px-4" : "justify-center"
+                      )}
+                      onClick={() => toggleSubmenu(item.id)}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {isExpanded && (
+                        <>
+                          <span className="ml-3 text-sm font-medium dark:text-white">
+                            {item.label}
+                          </span>
+                          <ChevronDown
+                            className={cn(
+                              "ml-auto h-4 w-4 transition-transform duration-200",
+                              openSubmenu === item.id && "rotate-180"
+                            )}
+                          />
+                        </>
+                      )}
+                    </Button>
                     {isExpanded && (
-                      <>
+                      <Collapsible open={openSubmenu === item.id}>
+                        <CollapsibleContent>
+                          <ul className="mt-2 space-y-1 px-4">
+                            {item.subItems.map((subItem) => {
+                              if (!subItem.roles.includes(user?.role)) {
+                                return null;
+                              }
+
+                              return (
+                                <li key={subItem.label}>
+                                  <Link
+                                    href={getFullPath(subItem.href)}
+                                    passHref
+                                  >
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className={cn(
+                                        "w-full justify-start text-sm",
+                                        isActive(getFullPath(subItem.href)) &&
+                                          "bg-accent text-accent-foreground"
+                                      )}
+                                    >
+                                      {subItem.label}
+                                    </Button>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )}
+                  </>
+                ) : (
+                  <Link href={getFullPath(item.href)} passHref>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full flex items-center py-3 transition-colors duration-200",
+                        isExpanded ? "justify-start px-4" : "justify-center",
+                        isActive(getFullPath(item.href)) &&
+                          "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {isExpanded && (
                         <span className="ml-3 text-sm font-medium dark:text-white">
                           {item.label}
                         </span>
-                        <ChevronDown
-                          className={cn(
-                            "ml-auto h-4 w-4 transition-transform duration-200",
-                            openSubmenu === item.id && "rotate-180"
-                          )}
-                        />
-                      </>
-                    )}
-                  </Button>
-                  {isExpanded && (
-                    <Collapsible open={openSubmenu === item.id}>
-                      <CollapsibleContent>
-                        <ul className="mt-2 space-y-1 px-4">
-                          {item.subItems.map((subItem) => (
-                            <li key={subItem.label}>
-                              <Link href={getFullPath(subItem.href)} passHref>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={cn(
-                                    "w-full justify-start text-sm",
-                                    isActive(getFullPath(subItem.href)) &&
-                                      "bg-accent text-accent-foreground"
-                                  )}
-                                >
-                                  {subItem.label}
-                                </Button>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  )}
-                </>
-              ) : (
-                <Link href={getFullPath(item.href)} passHref>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "w-full flex items-center py-3 transition-colors duration-200",
-                      isExpanded ? "justify-start px-4" : "justify-center",
-                      isActive(getFullPath(item.href)) &&
-                        "bg-accent text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5 flex-shrink-0" />
-                    {isExpanded && (
-                      <span className="ml-3 text-sm font-medium dark:text-white">
-                        {item.label}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-              )}
-            </li>
-          ))}
+                      )}
+                    </Button>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
@@ -374,6 +410,4 @@ const Sidebar = () => {
       </Dialog>
     </div>
   );
-};
-
-export default Sidebar;
+}

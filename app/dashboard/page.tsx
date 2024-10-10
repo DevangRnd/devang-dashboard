@@ -23,7 +23,7 @@ import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 
 const DashboardPage = () => {
-  const { user, getUser, isLoading, isError } = useUserStore();
+  const { user, getCurrentUser, isLoading, isError } = useUserStore();
 
   const pathname = usePathname();
 
@@ -148,8 +148,8 @@ const DashboardPage = () => {
   }
 
   useEffect(() => {
-    getUser();
-  }, [getUser]);
+    getCurrentUser();
+  }, [getCurrentUser]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
