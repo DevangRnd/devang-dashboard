@@ -89,7 +89,12 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  // console.log(user?.name);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const toggleSubmenu = (id: string) => {
     if (!isExpanded) {
       setIsExpanded(true);
@@ -286,41 +291,50 @@ const Sidebar = () => {
         >
           {isExpanded && (
             <span className="text-sm font-medium dark:text-white">
-              {theme === "dark" ? "Dark Mode" : "Light Mode"}
+              {mounted && (theme === "dark" ? "Dark Mode" : "Light Mode")}
             </span>
           )}
           <button
             onClick={toggleTheme}
             className="relative w-12 h-6 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-yellow-400"
             style={{
-              backgroundColor: theme === "dark" ? "#1f2937" : "#fde68a",
+              backgroundColor: mounted
+                ? theme === "dark"
+                  ? "#1f2937"
+                  : "#fde68a"
+                : "transparent",
             }}
           >
             <span className="sr-only">Toggle theme</span>
-            <div
-              className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-300 ${
-                theme === "dark"
-                  ? "bg-gray-600 translate-x-0"
-                  : "bg-white translate-x-6"
-              }`}
-            >
-              <div
-                className={`absolute inset-0 transition-opacity duration-300 ${
-                  theme === "dark" ? "opacity-0" : "opacity-100"
-                }`}
-              >
-                <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 rotate-45" />
-                <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 -rotate-45" />
-              </div>
-            </div>
-            <div
-              className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
-                theme === "dark" ? "opacity-0" : "opacity-40"
-              }`}
-              style={{
-                background: "radial-gradient(circle, #fef08a, transparent 70%)",
-              }}
-            />
+            {mounted && (
+              <>
+                <div
+                  className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-300 ${
+                    theme === "dark"
+                      ? "bg-gray-600 translate-x-0"
+                      : "bg-white translate-x-6"
+                  }`}
+                >
+                  <div
+                    className={`absolute inset-0 transition-opacity duration-300 ${
+                      theme === "dark" ? "opacity-0" : "opacity-100"
+                    }`}
+                  >
+                    <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 rotate-45" />
+                    <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 -rotate-45" />
+                  </div>
+                </div>
+                <div
+                  className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
+                    theme === "dark" ? "opacity-0" : "opacity-40"
+                  }`}
+                  style={{
+                    background:
+                      "radial-gradient(circle, #fef08a, transparent 70%)",
+                  }}
+                />
+              </>
+            )}
           </button>
         </div>
 

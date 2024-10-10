@@ -16,8 +16,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { TooltipContent, TooltipProvider } from "@radix-ui/react-tooltip";
-import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipProvider,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 const statuses = [
   "Charging",

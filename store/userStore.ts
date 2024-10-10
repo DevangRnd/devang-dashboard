@@ -5,6 +5,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
+  role?: "user" | "production" | "admin";
 }
 
 interface UserStore {
@@ -126,6 +127,7 @@ export const useUserStore = create<UserStore>((set) => ({
           _id: userData._id,
           name: userData.name,
           email: userData.email,
+          role: userData.role,
         },
         isLoading: false,
       });

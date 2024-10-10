@@ -15,10 +15,17 @@ import {
   Leaf,
   Zap,
   Cable,
+  LucideIcon,
+  Loader2,
+  ServerCrash,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 
 const DashboardPage = () => {
-  const { user, getUser } = useUserStore();
+  const { user, getUser, isLoading, isError } = useUserStore();
+
+  const pathname = usePathname();
 
   const mockData = [
     {
@@ -28,6 +35,7 @@ const DashboardPage = () => {
       iconColor: "text-amber-100",
       icon: Sun,
       category: "Lights Info",
+      hasView: false,
       info: "This card shows the total lights provided.",
     },
     {
@@ -37,6 +45,7 @@ const DashboardPage = () => {
       iconColor: "text-emerald-100",
       icon: CheckCircle,
       category: "Lights Info",
+      hasView: false,
       info: "This card shows the total healthy lights.",
     },
     {
@@ -46,6 +55,8 @@ const DashboardPage = () => {
       iconColor: "text-rose-100",
       icon: AlertTriangle,
       category: "Lights Info",
+      hasView: true,
+      viewPath: `${pathname}/faulty-lights`,
       info: "This card shows the faulty  lights.",
     },
     {
@@ -55,7 +66,9 @@ const DashboardPage = () => {
       iconColor: "text-white",
       icon: Cable,
       category: "Lights Info",
-      info: "The lights which would not send data for 72 hours due to ay fault would move to this card.",
+      hasView: true,
+      viewPath: `${pathname}/unplugged-controllers`,
+      info: "The lights which would not send data for 72 hours due to any fault would move to this card.",
     },
     {
       title: "TOTAL DISTRICTS",
@@ -64,6 +77,8 @@ const DashboardPage = () => {
       iconColor: "text-slate-100",
       icon: Map,
       category: "Location Info",
+      hasView: true,
+      viewPath: `${pathname}/total-districts`,
       info: "The total No of districts.",
     },
     {
@@ -73,6 +88,8 @@ const DashboardPage = () => {
       iconColor: "text-cyan-100",
       icon: Grid,
       category: "Location Info",
+      hasView: true,
+      viewPath: `${pathname}/total-blocks`,
       info: "The total No of districts.",
     },
     {
@@ -82,6 +99,8 @@ const DashboardPage = () => {
       iconColor: "text-fuchsia-100",
       icon: Home,
       category: "Location Info",
+      hasView: true,
+      viewPath: `${pathname}/total-panchayats`,
       info: "The total No of panchayats.",
     },
     {
@@ -91,6 +110,8 @@ const DashboardPage = () => {
       iconColor: "text-orange-100",
       icon: Users,
       category: "Location Info",
+      hasView: true,
+      viewPath: `${pathname}/total-wards`,
       info: "The total No of wards.",
     },
     {
@@ -100,6 +121,7 @@ const DashboardPage = () => {
       iconColor: "text-teal-100",
       icon: Leaf,
       category: "Energy Info",
+      hasView: false,
       info: "The total amount of CO2 emission reduced.",
     },
     {
@@ -109,13 +131,26 @@ const DashboardPage = () => {
       iconColor: "text-indigo-100",
       icon: Zap,
       category: "Energy Info",
+      hasView: false,
       info: "The total amount of energy saved.",
     },
   ];
+  interface DashboardData {
+    title: string;
+    value: number | string;
+    color: string;
+    iconColor: string;
+    icon: LucideIcon;
+    category: string;
+    hasView: boolean;
+    viewPath?: string;
+    info: string;
+  }
 
   useEffect(() => {
     getUser();
   }, [getUser]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -136,19 +171,40 @@ const DashboardPage = () => {
       },
     },
   };
-  const groupedData = mockData.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {});
+
+  const groupedData = mockData.reduce<Record<string, DashboardData[]>>(
+    (acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    },
+    {}
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center h-screen flex-col">
+        <ServerCrash className="w-20 h-20 animate-bounce" />
+        <h1 className="text-3xl font-bold">Error Occured</h1>
+      </div>
+    );
+  }
   return (
     <div className="w-4/5 mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
           Welcome, {user?.name}
         </h1>
+        <Badge>{user?.role}</Badge>
       </div>
       <motion.div
         variants={containerVariants}
@@ -176,6 +232,8 @@ const DashboardPage = () => {
                   iconColor={data.iconColor}
                   index={categoryIndex * items.length + index}
                   info={data.info}
+                  hasView={data.hasView}
+                  viewPath={data.viewPath}
                 />
               ))}
             </div>
