@@ -29,17 +29,24 @@ const LoginPage = () => {
     try {
       await login(email, password);
       toast({
-        title: "Success",
-        description: "Logged In Succesfully",
+        title: "Logged In Successfully",
+        description: "Redirecting to the dashboard",
         variant: "default",
       });
-      router.push("/dashboard");
-    } catch (error: any) {
-      toast({
-        title: "Error Occured",
-        description: isError,
-        variant: "destructive",
-      });
+      router.replace("/dashboard");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: isError || "Error Occured",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error Occurred",
+          description: "An unexpected error occurred during sign up",
+          variant: "destructive",
+        });
+      }
     }
   };
 

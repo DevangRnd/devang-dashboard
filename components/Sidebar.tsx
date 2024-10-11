@@ -17,6 +17,7 @@ import {
   Users,
   LogOut,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -111,7 +112,7 @@ const menuItems = [
 ];
 
 export default function Component() {
-  const { user, logout, isError } = useUserStore();
+  const { user, logout, isError, isLoading } = useUserStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -402,9 +403,16 @@ export default function Component() {
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleLogOut}>
-              Logout
-            </Button>
+            {isLoading ? (
+              <Button variant="destructive" disabled>
+                <Loader2 className="animate-spin h-4 w-4" />
+                Logout
+              </Button>
+            ) : (
+              <Button variant="destructive" onClick={handleLogOut}>
+                Logout
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

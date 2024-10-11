@@ -27,13 +27,13 @@ const SignUpPage = () => {
   const { signUp, isLoading, isError } = useUserStore();
   const passwordCriteria = [
     { label: "At least 8 characters", regex: /.{8,}/ },
-    { label: "At least one uppercase letter", regex: /[A-Z]/ },
-    { label: "At least one lowercase letter", regex: /[a-z]/ },
-    { label: "At least one number", regex: /\d/ },
-    {
-      label: "At least one special character",
-      regex: /[!@#$%^&*(),.?":{}|<>]/,
-    },
+    // { label: "At least one uppercase letter", regex: /[A-Z]/ },
+    // { label: "At least one lowercase letter", regex: /[a-z]/ },
+    // { label: "At least one number", regex: /\d/ },
+    // {
+    //   label: "At least one special character",
+    //   regex: /[!@#$%^&*(),.?":{}|<>]/,
+    // },
   ];
 
   const checkPasswordStrength = (value: string) => {
@@ -52,28 +52,25 @@ const SignUpPage = () => {
     e.preventDefault();
     if (allCriteriaMet && passwordsMatch) {
       try {
-        const success = await signUp(name, email, password);
-
-        if (success) {
+        await signUp(name, email, password);
+        toast({
+          title: "Account created successfully!",
+          description: "You are now being redirected to the dashboard.",
+        });
+        router.replace("/dashboard");
+      } catch (error) {
+        if (error instanceof Error) {
           toast({
-            title: "Account created successfully!",
-            description: "You are now being redirected to the dashboard.",
+            title: isError || "Error Occured",
+            variant: "destructive",
           });
-          router.push("/dashboard");
         } else {
           toast({
             title: "Error Occurred",
-            description: isError || "An error occurred during sign up",
+            description: "An unexpected error occurred during sign up",
             variant: "destructive",
           });
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        toast({
-          title: "Error Occurred",
-          description: "An unexpected error occurred during sign up",
-          variant: "destructive",
-        });
       }
     }
   };

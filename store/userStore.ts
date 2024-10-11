@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 interface User {
   _id: string;
@@ -9,25 +9,61 @@ interface User {
 }
 
 interface UserStore {
-  user: User | null | string;
+  user: User | null;
   isLoading: boolean;
   isError: string | null;
   allUsers: User[];
   singleUser: User | null;
-  signUp: (name: string, email: string, password: string) => Promise<boolean>;
-  login: (email: string, password: string) => Promise<boolean>;
+  signUp: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
   getAllUsers: () => Promise<boolean>;
   getSingleUser: (userId: string) => Promise<boolean>;
 }
 
+const getStoredUser = (): User | null => {
+  if (typeof window !== "undefined") {
+    const storedUser = localStorage.getItem("userInfo");
+    return storedUser ? JSON.parse(storedUser) : null;
+  }
+  return null;
+};
+
 export const useUserStore = create<UserStore>((set) => ({
-  user: JSON.parse(localStorage.getItem("userInfo")!) || null,
+  user: getStoredUser(),
   isLoading: false,
   isError: null,
   allUsers: [],
   singleUser: null,
+  //   set({ isLoading: true, isError: null });
+  //   try {
+  //     const response = await axios.post("/api/auth/signup", {
+  //       name,
+  //       email,
+  //       password,
+  //     });
+  //     const userData = response.data.newUser;
+  //     const user = {
+  //       _id: userData._id,
+  //       name: userData.name,
+  //       email: userData.email,
+  //       role: userData.role,
+  //     };
+  //     set({ user, isLoading: false, isError: null });
+  //     localStorage.setItem("userInfo", JSON.stringify(user));
+  //     return true;
+  //   } catch (error) {
+  //     let errorMessage = "An unexpected error occurred";
+  //     let statusCode = 500;
+  //     if (axios.isAxiosError(error) && error.response) {
+  //       errorMessage = error.response.data.message || "Failed to sign up";
+  //       statusCode = error.response.status;
+  //     }
+  //     set({ isError: errorMessage, isLoading: false });
+  //     return { success: false, statusCode };
+  //   }
+  // },
   signUp: async (name: string, email: string, password: string) => {
     set({ isLoading: true, isError: null });
     try {
@@ -36,76 +72,47 @@ export const useUserStore = create<UserStore>((set) => ({
         email,
         password,
       });
-
-      if (response.data.success) {
-        const userData = response.data.newUser;
-        set({
-          user: {
-            _id: userData._id,
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-          },
-          isLoading: false,
-          isError: null,
-        });
-        return true; // Indicate success
-      } else {
-        set({
-          isError: response.data.message || "Sign up failed",
-          isLoading: false,
-        });
-        return false; // Indicate failure
-      }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to sign up";
-        set({ isError: errorMessage, isLoading: false });
-      } else {
-        set({ isError: "An unexpected error occurred", isLoading: false });
-      }
-      return false; // Indicate failure
+      const userData = response.data.user;
+      const user = {
+        _id: userData._id,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+      };
+      set({ user, isLoading: false, isError: null });
+      localStorage.setItem("userInfo", JSON.stringify(user));
+    } catch (error) {
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to sign up"
+        : "An unexpected error occurred";
+      set({ isError: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
     }
   },
 
   login: async (email: string, password: string) => {
     set({ isLoading: true, isError: null });
-
     try {
-      const response = await axios.post("/api/auth/login", {
-        email,
-        password,
-      });
-      if (response.data.success) {
-        const userData = response.data.user;
-        set({
-          user: {
-            _id: userData._id,
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-          },
-          isLoading: false,
-        });
+      const response = await axios.post("/api/auth/login", { email, password });
 
-        return true;
-      } else {
-        set({
-          isError: response.data.message || "Sign up failed",
-          isLoading: false,
-        });
-        return false; // Indicate failure
-      }
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to log in";
-        set({ isError: errorMessage, isLoading: false });
-      } else {
-        set({ isError: "An unexpected error occurred", isLoading: false });
-      }
-      throw error;
+      const userData = await response.data.user;
+      const user = {
+        _id: userData._id,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+      };
+      set({ user, isLoading: false });
+      localStorage.setItem("userInfo", JSON.stringify(user));
+    } catch (error) {
+      // const errorMessage = axios.isAxiosError(error)
+      //   ? error.response?.data?.message || "Failed to log in"
+      //   : "An unexpected error occurred";
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to sign up"
+        : "An unexpected error occurred";
+      set({ isError: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
     }
   },
 
@@ -115,58 +122,47 @@ export const useUserStore = create<UserStore>((set) => ({
       await axios.post("/api/auth/logout");
       set({ user: null, isLoading: false });
       localStorage.removeItem("userInfo");
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to logout";
-        set({ isError: errorMessage, isLoading: false });
-      } else {
-        set({ isError: "An unexpected error occurred", isLoading: false });
-      }
+    } catch (error) {
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to logout"
+        : "An unexpected error occurred";
+      set({ isError: errorMessage, isLoading: false });
     }
   },
 
   getCurrentUser: async () => {
     set({ isLoading: true, isError: null });
-    const userInLocalStorage = JSON.parse(localStorage.getItem("userInfo")!);
-    if (userInLocalStorage) {
-      set({ user: userInLocalStorage, isLoading: false });
-
+    const storedUser = getStoredUser();
+    if (storedUser) {
+      set({ user: storedUser, isLoading: false });
       return;
     }
     try {
       const response = await axios.get("/api/auth/getUser");
-      const userData = response.data.user;
-      console.log("Hit api");
-      set({
-        user: {
-          _id: userData._id,
-          name: userData.name,
-          email: userData.email,
-          role: userData.role,
-        },
-        isLoading: false,
-      });
-      localStorage.setItem("userInfo", JSON.stringify(userData));
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to fetch user";
-        set({ isError: errorMessage, isLoading: false });
-      } else {
-        set({ isError: "An unexpected error occurred", isLoading: false });
-      }
+      const userData = response.data;
+      const user = {
+        _id: userData._id,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+      };
+      set({ user, isLoading: false });
+      localStorage.setItem("userInfo", JSON.stringify(user));
+    } catch (error) {
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to fetch user"
+        : "An unexpected error occurred";
+      set({ isError: errorMessage, isLoading: false, user: null });
+      localStorage.removeItem("userInfo");
     }
   },
+
   getAllUsers: async () => {
     set({ isLoading: true, isError: null });
     try {
       const response = await axios.get("/api/admin/getUsers");
       if (response.data.success) {
-        set({
-          allUsers: response.data.users,
-          isLoading: false,
-        });
+        set({ allUsers: response.data.users, isLoading: false });
         return true;
       } else {
         set({
@@ -175,17 +171,15 @@ export const useUserStore = create<UserStore>((set) => ({
         });
         return false;
       }
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to fetch users";
-        set({ isError: errorMessage, isLoading: false });
-      } else {
-        set({ isError: "An unexpected error occurred", isLoading: false });
-      }
+    } catch (error) {
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to fetch users"
+        : "An unexpected error occurred";
+      set({ isError: errorMessage, isLoading: false });
       return false;
     }
   },
+
   getSingleUser: async (userId: string) => {
     set({ isLoading: true, isError: null });
     try {
@@ -193,27 +187,21 @@ export const useUserStore = create<UserStore>((set) => ({
         `/api/admin/getSingleUserDetails/${userId}`
       );
       if (response.data.success) {
-        set({
-          singleUser: response.data.user, // Set the single user data
-          isLoading: false,
-        });
-        return true; // Indicate success
+        set({ singleUser: response.data.user, isLoading: false });
+        return true;
       } else {
         set({
           isError: response.data.message || "Failed to fetch user",
           isLoading: false,
         });
-        return false; // Indicate failure
+        return false;
       }
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to fetch user";
-        set({ isError: errorMessage, isLoading: false });
-      } else {
-        set({ isError: "An unexpected error occurred", isLoading: false });
-      }
-      return false; // Indicate failure
+    } catch (error) {
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to fetch user"
+        : "An unexpected error occurred";
+      set({ isError: errorMessage, isLoading: false });
+      return false;
     }
   },
 }));
