@@ -3,12 +3,12 @@ import { AxiosError } from "axios";
 import { hashPassword } from "@/lib/hashPassword";
 import User from "@/models/UserModel";
 import connectToDb from "@/lib/connectToDb";
-import { generateToken } from "@/lib/generateToken";
+// import { generateToken } from "@/lib/generateToken";
 
 export const POST = async (request: NextRequest) => {
   connectToDb();
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password, role } = await request.json();
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -17,20 +17,25 @@ export const POST = async (request: NextRequest) => {
       );
     }
     const hashedPassword = await hashPassword(password);
-    const newUser = await new User({ name, email, password: hashedPassword });
+    const newUser = await new User({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
     await newUser.save();
-    const token = generateToken(newUser._id.toString(), newUser.email);
+    // const token = generateToken(newUser._id.toString(), newUser.email);
     const response = NextResponse.json(
       { user: newUser, success: true },
       { status: 201 }
     );
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: true,
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
+    // response.cookies.set("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: true,
+    //   maxAge: 60 * 60 * 24,
+    //   path: "/",
+    // });
     return response;
   } catch (error: unknown) {
     if (error instanceof AxiosError) {

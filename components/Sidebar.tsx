@@ -111,7 +111,7 @@ const menuItems = [
   },
 ];
 
-export default function Component() {
+export default function Sidebar() {
   const { user, logout, isError, isLoading } = useUserStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);

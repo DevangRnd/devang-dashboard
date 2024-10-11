@@ -5,7 +5,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role?: "user" | "production" | "admin";
+  role: "user" | "production" | "admin";
 }
 
 interface UserStore {
@@ -14,7 +14,12 @@ interface UserStore {
   isError: string | null;
   allUsers: User[];
   singleUser: User | null;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
+  signUp: (
+    name: string,
+    email: string,
+    password: string,
+    role: string
+  ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
@@ -64,23 +69,25 @@ export const useUserStore = create<UserStore>((set) => ({
   //     return { success: false, statusCode };
   //   }
   // },
-  signUp: async (name: string, email: string, password: string) => {
+  signUp: async (
+    name: string,
+    email: string,
+    password: string,
+    role: string
+  ) => {
     set({ isLoading: true, isError: null });
     try {
       const response = await axios.post("/api/auth/signup", {
         name,
         email,
         password,
+        role,
       });
       const userData = response.data.user;
-      const user = {
-        _id: userData._id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-      };
-      set({ user, isLoading: false, isError: null });
-      localStorage.setItem("userInfo", JSON.stringify(user));
+      console.log(userData);
+
+      set({ isLoading: false, isError: null });
+      // localStorage.setItem("userInfo", JSON.stringify(user));
     } catch (error) {
       const errorMessage = axios.isAxiosError(error)
         ? error.response?.data?.message || "Failed to sign up"
@@ -105,9 +112,6 @@ export const useUserStore = create<UserStore>((set) => ({
       set({ user, isLoading: false });
       localStorage.setItem("userInfo", JSON.stringify(user));
     } catch (error) {
-      // const errorMessage = axios.isAxiosError(error)
-      //   ? error.response?.data?.message || "Failed to log in"
-      //   : "An unexpected error occurred";
       const errorMessage = axios.isAxiosError(error)
         ? error.response?.data?.message || "Failed to sign up"
         : "An unexpected error occurred";
