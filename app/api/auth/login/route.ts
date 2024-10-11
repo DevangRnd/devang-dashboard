@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDb from "@/lib/connectToDb";
 
 export const POST = async (request: NextRequest) => {
-  connectToDb();
+  await connectToDb();
   try {
     const { email, password } = await request.json();
 
@@ -31,11 +31,15 @@ export const POST = async (request: NextRequest) => {
     // Generate a JWT token
     const token = generateToken(user._id.toString(), user.email);
 
+    // Convert the user document to a plain object and exclude the password
+    const userObj = user.toObject();
+    delete userObj.password;
+
     // Set the JWT token in a cookie
     const response = NextResponse.json(
       {
         message: "Login successful",
-        user: { id: user._id, email: user.email },
+        user: userObj,
         success: true,
       },
       { status: 200 }
