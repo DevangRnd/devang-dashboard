@@ -18,9 +18,10 @@ import {
 import { useUserStore } from "@/store/userStore";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+// import {toast} from "react-toastify"
 
 const LoginPage = () => {
-  const { login, isError, isLoading } = useUserStore();
+  const { login, isLoading } = useUserStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -29,22 +30,24 @@ const LoginPage = () => {
     try {
       await login(email, password);
       toast({
-        title: "Logged In Successfully",
-        description: "Redirecting to the dashboard",
-        variant: "default",
+        title: "Logged In Succesfully",
+        description: "Redirecting..",
+        duration: 2000,
       });
       router.replace("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         toast({
-          title: isError || "Error Occured",
+          title: error?.message || "Error Occured",
           variant: "destructive",
+          duration: 2000,
         });
       } else {
         toast({
           title: "Error Occurred",
           description: "An unexpected error occurred during sign up",
           variant: "destructive",
+          duration: 2000,
         });
       }
     }

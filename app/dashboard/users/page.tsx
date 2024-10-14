@@ -26,11 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { Bounce, toast } from "react-toastify";
+// import { Bounce, toast } from "react-toastify";
 export default function AllUsersPage() {
-  const { getAllUsers, allUsers, signUp, isError, isLoading } = useUserStore();
+  const { getAllUsers, allUsers, signUp, isLoading } = useUserStore();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,30 +45,22 @@ export default function AllUsersPage() {
 
     try {
       await signUp(name, email, password, role);
-      // toast({
-      //   title: "Account created successfully!",
-      // });
-      toast.success("Account Created Successfully", {
-        theme: "dark",
-        autoClose: 4000,
-        draggable: true,
-        transition: Bounce,
+      toast({
+        title: "Account created successfully!",
+        description: "You Can Now login With These Credentials",
       });
+
       getAllUsers();
     } catch (error) {
       if (error instanceof Error) {
-        toast.success(isError || "Error Occured", {
-          theme: "dark",
-          autoClose: 4000,
-          draggable: true,
-          transition: Bounce,
+        toast({
+          title: error?.message,
+          variant: "destructive",
         });
       } else {
-        toast.success(isError || "Error Occured", {
-          theme: "dark",
-          autoClose: 4000,
-          draggable: true,
-          transition: Bounce,
+        toast({
+          title: "Unexpected Error Occured",
+          variant: "destructive",
         });
       }
     }

@@ -112,7 +112,7 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
-  const { user, logout, isError, isLoading } = useUserStore();
+  const { user, logout, isLoading } = useUserStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -154,13 +154,21 @@ export default function Sidebar() {
       await logout();
       toast({
         title: "Successfully Logged Out",
+        duration: 2500,
       });
       router.replace("/login");
-    } catch (error: any) {
-      toast({
-        title: "Error Logging Out",
-        description: isError,
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: error?.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error Occured",
+          variant: "destructive",
+        });
+      }
     }
   };
 

@@ -4,7 +4,7 @@ let isConnected = false; // Track the connection status
 
 const connectToDb = async () => {
   if (isConnected) {
-    // console.log("=> Using existing database connection");
+    console.log("=> Using existing database connection");
     return;
   }
 

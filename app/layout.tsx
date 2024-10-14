@@ -4,8 +4,9 @@ import "./globals.css";
 import { Montserrat } from "next/font/google";
 // import { Toaster } from "@/components/ui/toaster";
 
-import { ToastContainer } from "react-toastify";
+// import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "@/components/ui/toaster";
 
 // const poppins = Poppins({
 //   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -38,8 +39,7 @@ export default function RootLayout({
       <body className={monsterrat.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
-          {/* <Toaster /> */}
-          <ToastContainer />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
