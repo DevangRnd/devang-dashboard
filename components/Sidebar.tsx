@@ -387,7 +387,7 @@ export default function Sidebar() {
         <Button
           variant="ghost"
           className={cn(
-            "w-full flex items-center py-3 transition-colors duration-200",
+            "w-full flex items-center py-3 transition-colors duration-200 my-2",
             isExpanded ? "justify-start px-4" : "justify-center"
           )}
           onClick={() => setIsLogoutModalOpen(true)}

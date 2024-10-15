@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   role: "user" | "production" | "admin";
+  createdAt?: Date;
 }
 
 interface UserStore {

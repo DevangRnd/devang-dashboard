@@ -1,4 +1,13 @@
 "use client";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { useUserStore } from "@/store/userStore";
 import Link from "next/link";
@@ -27,8 +36,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-// import { Bounce, toast } from "react-toastify";
+import { EyeIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 export default function AllUsersPage() {
   const { getAllUsers, allUsers, signUp, isLoading } = useUserStore();
 
@@ -67,7 +77,7 @@ export default function AllUsersPage() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="">
       <Drawer>
         <DrawerTrigger asChild>
           <Button className="mb-4">Add User</Button>
@@ -139,42 +149,45 @@ export default function AllUsersPage() {
           </form>
         </DrawerContent>
       </Drawer>
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>
-            <span>All Users</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[70vh]">
-            <div className="space-y-4">
-              {allUsers.map((user) => (
-                <Link
-                  href={`/dashboard/users/${user._id}`}
-                  key={user._id}
-                  className="flex items-center space-x-4 p-2 rounded-lg hover:bg-accent transition-colors"
-                >
-                  <Avatar>
-                    <AvatarImage
-                      src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.name}`}
-                      alt={user.name}
-                    />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium leading-none">
-                      {user.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
+      <Table>
+        <TableCaption>List Of All Users</TableCaption>
+        <TableHeader>
+          <TableRow className="bg-blue-400/50 hover:bg-blue-400/65">
+            <TableHead className="text-white">Name</TableHead>
+            <TableHead className="text-white">Role</TableHead>
+            <TableHead className="text-white">Created At</TableHead>
+            <TableHead className="text-white">View User</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {allUsers.map((user, index) => (
+            <TableRow
+              className={cn(index % 2 === 0 ? "bg-muted" : "")}
+              key={user._id}
+            >
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.role}</TableCell>
+              <TableCell>
+                {user.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString("en-GB", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })
+                  : "N/A"}
+              </TableCell>
+              <TableCell>
+                <Link href={`/dashboard/users/${user._id}`}>
+                  <EyeIcon />
                 </Link>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

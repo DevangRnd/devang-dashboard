@@ -9,16 +9,20 @@ import { Badge } from "@/components/ui/badge";
 
 const SingleUserPage = () => {
   const { id } = useParams();
-  const { getSingleUser, singleUser, isLoading } = useUserStore();
+  const { getSingleUser, singleUser } = useUserStore();
 
   useEffect(() => {
     if (id) {
       getSingleUser(id.toString());
     }
   }, [getSingleUser, id]);
-  if (isLoading) {
-    return <div className="text-center p-4">Loading</div>;
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="h-screen grid place-items-center">
+  //       <Loader2 className="h-64 w-64 animate-spin" />
+  //     </div>
+  //   );
+  // }
   if (!singleUser) {
     return <div className="text-center p-4">No User Found</div>;
   }
