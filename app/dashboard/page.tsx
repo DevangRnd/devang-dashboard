@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-import WelcomeCard from "@/components/WelcomeCard";
 import { useEffect, useState } from "react";
 
+import WelcomeCard from "@/components/WelcomeCard";
 const DashboardPage = () => {
   const { isLoading } = useUserStore();
 

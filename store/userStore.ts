@@ -21,6 +21,7 @@ interface UserStore {
   ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  isLoggedOut: boolean;
   getCurrentUser: () => Promise<void>;
   getAllUsers: () => Promise<void>;
   getSingleUser: (userId: string) => Promise<void>;
@@ -39,7 +40,7 @@ export const useUserStore = create<UserStore>((set) => ({
   isLoading: false,
   allUsers: [],
   singleUser: null,
-
+  isLoggedOut: false,
   signUp: async (
     name: string,
     email: string,
@@ -94,7 +95,7 @@ export const useUserStore = create<UserStore>((set) => ({
     set({ isLoading: true });
     try {
       await axios.post("/api/auth/logout");
-      set({ user: null, isLoading: false });
+      set({ user: null, isLoading: false, isLoggedOut: true });
       localStorage.removeItem("userInfo");
     } catch (error) {
       set({ isLoading: false });
