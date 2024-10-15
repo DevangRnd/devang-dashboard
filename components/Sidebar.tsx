@@ -124,7 +124,7 @@ export default function Sidebar() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
+  if (!mounted) return null;
   const toggleSubmenu = (id: string) => {
     if (!isExpanded) {
       setIsExpanded(true);
@@ -413,7 +413,7 @@ export default function Sidebar() {
             </Button>
             {isLoading ? (
               <Button variant="destructive" disabled>
-                <Loader2 className="animate-spin h-4 w-4" />
+                <Loader2 className="animate-spin h-4 w-4 mr-4" />
                 Logout
               </Button>
             ) : (

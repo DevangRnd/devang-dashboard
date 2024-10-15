@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useUserStore } from "@/store/userStore";
 import { motion } from "framer-motion";
 import DashboardCard from "@/components/DashboardCard";
@@ -17,13 +16,14 @@ import {
   Cable,
   LucideIcon,
   Loader2,
-  ServerCrash,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
+
+import WelcomeCard from "@/components/WelcomeCard";
+import { useEffect, useState } from "react";
 
 const DashboardPage = () => {
-  const { user, getCurrentUser, isLoading, isError } = useUserStore();
+  const { isLoading } = useUserStore();
 
   const pathname = usePathname();
 
@@ -146,11 +146,13 @@ const DashboardPage = () => {
     viewPath?: string;
     info: string;
   }
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    getCurrentUser();
-  }, [getCurrentUser]);
+    setIsMounted(true);
+  }, []);
 
+  if (!isMounted) return null;
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -190,22 +192,10 @@ const DashboardPage = () => {
       </div>
     );
   }
-  if (isError) {
-    return (
-      <div className="flex justify-center items-center h-screen flex-col">
-        <ServerCrash className="w-20 h-20 animate-bounce" />
-        <h1 className="text-3xl font-bold">Error Occured</h1>
-      </div>
-    );
-  }
+
   return (
     <div className="w-4/5 mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-          Welcome, {user?.name}
-        </h1>
-        <Badge>{user?.role}</Badge>
-      </div>
+      <WelcomeCard />
       <motion.div
         variants={containerVariants}
         initial="hidden"
