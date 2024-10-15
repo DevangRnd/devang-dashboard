@@ -2,12 +2,8 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import { Montserrat } from "next/font/google";
-// import { Toaster } from "@/components/ui/toaster";
 
-// import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "@/components/ui/toaster";
-import Providers from "@/components/Providers";
 
 // const poppins = Poppins({
 //   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],

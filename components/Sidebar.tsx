@@ -187,6 +187,7 @@ export default function Sidebar() {
         <div className={cn("overflow-hidden", !isExpanded && "w-0")}>
           {isExpanded && <span className="font-semibold">Ielecssol</span>}
         </div>
+
         <Button
           variant="ghost"
           size="icon"
