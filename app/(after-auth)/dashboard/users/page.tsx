@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import {
   Table,
@@ -8,13 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { useUserStore } from "@/store/userStore";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Drawer,
   DrawerClose,
@@ -52,7 +50,6 @@ export default function AllUsersPage() {
   }, []);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       await signUp(name, email, password, role);
       toast({

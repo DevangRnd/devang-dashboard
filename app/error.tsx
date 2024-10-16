@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
 import Lottie from "lottie-react";
-import animation from "../assets/error-animation.json";
+import animation from "@/assets/error-animation.json";
+
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 const NotFound = () => {
