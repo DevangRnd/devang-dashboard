@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   AlertCircle,
@@ -9,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
+  TableCellsSplit,
+  Tally3Icon,
 } from "lucide-react";
 import {
   Table,
@@ -33,6 +36,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const statuses = [
   "Charging",
@@ -84,7 +92,7 @@ export default function SSLData() {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
+  const router = useRouter();
   return (
     <div className="w-full px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -115,6 +123,29 @@ export default function SSLData() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead
+                colSpan={2}
+                className="bg-white hover:bg-white dark:bg-black dark:hover:bg-black"
+              ></TableHead>
+
+              <TableHead
+                className="text-center bg-sky-400 text-white font-bold"
+                colSpan={2}
+              >
+                Test
+              </TableHead>
+              <TableHead className="bg-white hover:bg-white dark:bg-black dark:hover:bg-black"></TableHead>
+              <TableHead className="bg-white hover:bg-white dark:bg-black dark:hover:bg-black"></TableHead>
+              <TableHead
+                className="bg-white hover:bg-white dark:bg-black dark:hover:bg-black"
+                colSpan={3}
+              >
+                Test
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableHeader>
+            <TableRow>
               <TableHead className="font-semibold">ID</TableHead>
               <TableHead className="font-semibold">Device ID IMEI</TableHead>
               <TableHead className="font-semibold">RMS Mobile No</TableHead>
@@ -123,7 +154,9 @@ export default function SSLData() {
               <TableHead className="font-semibold">Panel Sr No</TableHead>
               <TableHead className="font-semibold">Battery Sr No</TableHead>
               <TableHead className="font-semibold">System Status</TableHead>
+              <TableHead className="font-semibold">Tabular Data</TableHead>
               <TableHead className="font-semibold">Last Updated</TableHead>
+              <TableHead className="font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -151,7 +184,34 @@ export default function SSLData() {
                     </Tooltip>
                   </TooltipProvider>
                 </TableCell>
+                <TableCell>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <TableCellsSplit
+                        size={20}
+                        onClick={() =>
+                          router.push(
+                            `/dashboard/tabular-data/${row.DeviceIDIMEI}`
+                          )
+                        }
+                      />
+                    </PopoverTrigger>
+                  </Popover>
+                </TableCell>
                 <TableCell>{row.LastUpdated}</TableCell>
+                <TableCell>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Tally3Icon className="rotate-90" />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-36 rounded-md bg-muted">
+                      <div className="flex flex-col gap-4">
+                        <Button size={"sm"}>Edit</Button>
+                        <Button size={"sm"}>Delete</Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

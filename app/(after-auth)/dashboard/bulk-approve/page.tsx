@@ -118,7 +118,14 @@ const BulkApprove = () => {
                 </TableCell>
                 <TableCell>{row.added_on_date}</TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    className={`${
+                      index % 2 === 0
+                        ? "bg-white text-black hover:bg-white"
+                        : "bg-slate-400 hover:bg-slate-400"
+                    }`}
+                    size="sm"
+                  >
                     Assign
                   </Button>
                 </TableCell>
