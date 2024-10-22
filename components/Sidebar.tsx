@@ -319,7 +319,6 @@ export default function Sidebar() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>{user?.name}</p>
-                <p>ROle {user?.role}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

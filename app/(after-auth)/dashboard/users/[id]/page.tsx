@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
+import { PencilLine } from "lucide-react";
+
 const SingleUserPage = () => {
   const { id } = useParams();
   const { getSingleUser, singleUser } = useUserStore();
@@ -16,13 +18,7 @@ const SingleUserPage = () => {
       getSingleUser(id.toString());
     }
   }, [getSingleUser, id]);
-  // if (isLoading) {
-  //   return (
-  //     <div className="h-screen grid place-items-center">
-  //       <Loader2 className="h-64 w-64 animate-spin" />
-  //     </div>
-  //   );
-  // }
+
   if (!singleUser) {
     return <div className="text-center p-4">No User Found</div>;
   }
@@ -50,9 +46,12 @@ const SingleUserPage = () => {
             <p className="text-sm font-medium">User ID</p>
             <p className="text-sm text-muted-foreground">{singleUser._id}</p>
           </div>
-          <div>
-            <p className="text-sm font-medium">Role</p>
-            <Badge variant="outline">{singleUser.role}</Badge>
+          <div className="flex justify-between items-center">
+            <div>
+              <Badge variant="outline">{singleUser.role}</Badge>
+            </div>
+
+            <PencilLine />
           </div>
         </div>
       </CardContent>

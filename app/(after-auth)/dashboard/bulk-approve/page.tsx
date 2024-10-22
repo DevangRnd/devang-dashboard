@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { TableIcon } from "lucide-react";
+
+import { useRouter } from "next/navigation";
 const mockData = Array.from({ length: 50 }, (_, index) => ({
   imei: Math.floor(
     100000000000000 + Math.random() * 900000000000000
@@ -44,7 +46,7 @@ const BulkApprove = () => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
+  const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center">
       <Card className="w-full">
@@ -61,31 +63,42 @@ const BulkApprove = () => {
           </form>
         </CardContent>
       </Card>
-      <div className="w-full px-4 py-2 overflow-x-auto">
+      <div className=" px-4 py-2 overflow-x-auto">
         <Table className="w-full">
-          <TableHeader>
+          <TableHeader className="bg-muted">
             <TableRow>
-              <TableHead className="text-md">IMEI</TableHead>
-              <TableHead className="text-md">RMS</TableHead>
-              <TableHead className="text-md">PV</TableHead>
-              <TableHead className="text-md">PV Voltage</TableHead>
-              <TableHead className="text-md">PV Current</TableHead>
-              <TableHead className="text-md">Battery Voltage</TableHead>
-              <TableHead className="text-md">Battery Current</TableHead>
-              <TableHead className="text-md">Load Voltage</TableHead>
-              <TableHead className="text-md">Load Current</TableHead>
-              <TableHead className="text-md">Faults</TableHead>
-              <TableHead className="text-md">Tabular Data</TableHead>
-              <TableHead className="text-md">Added On</TableHead>
-              <TableHead className="text-md">Operations</TableHead>
-              <TableHead className="text-md">Actions</TableHead>
+              <TableHead className="text-sm font-bold">IMEI</TableHead>
+              <TableHead className="text-sm font-bold">RMS</TableHead>
+              <TableHead className="text-sm font-bold">PV</TableHead>
+              <TableHead className="text-sm font-bold">PV Voltage</TableHead>
+              <TableHead className="text-sm font-bold">PV Current</TableHead>
+              <TableHead className="text-sm font-bold">
+                Battery Voltage
+              </TableHead>
+              <TableHead className="text-sm font-bold">
+                Battery Current
+              </TableHead>
+              <TableHead className="text-sm font-bold">Load Voltage</TableHead>
+              <TableHead className="text-sm font-bold">Load Current</TableHead>
+              <TableHead className="text-sm font-bold">Faults</TableHead>
+              <TableHead className="text-sm font-bold">Tabular Data</TableHead>
+              <TableHead className="text-sm font-bold">Added On</TableHead>
+              <TableHead className="text-sm font-bold">Operations</TableHead>
+              <TableHead className="text-sm font-bold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentRows.map((row, index) => (
-              <TableRow key={index} className="text-center text-md py-5">
-                <TableCell>{row.imei}</TableCell>
-                <TableCell>{row.rms}</TableCell>
+              <TableRow
+                key={index}
+                className={`text-center text-xs py-5 ${
+                  index % 2 === 0
+                    ? "bg-sky-300 hover:bg-sky-500 dark:bg-slate-500 dark:hover:bg-slate-500"
+                    : "bg-muted hover:bg-muted"
+                }`}
+              >
+                <TableCell className="font-bold">{row.imei}</TableCell>
+                <TableCell className="font-bold">{row.rms}</TableCell>
                 <TableCell>{row.pv}</TableCell>
                 <TableCell>{row.pv_voltage}</TableCell>
                 <TableCell>{row.pv_current}</TableCell>
@@ -96,9 +109,12 @@ const BulkApprove = () => {
                 <TableCell className="flex items-center justify-center">
                   -
                 </TableCell>
-                <TableCell>
-                  {" "}
-                  <TableIcon />
+                <TableCell
+                  onClick={() =>
+                    router.push(`/dashboard/tabular-data/${row.imei}`)
+                  }
+                >
+                  <TableIcon size={20} />
                 </TableCell>
                 <TableCell>{row.added_on_date}</TableCell>
                 <TableCell>
@@ -106,7 +122,7 @@ const BulkApprove = () => {
                     Assign
                   </Button>
                 </TableCell>
-                <TableCell>
+                <TableCell className="cursor-context-menu">
                   <Button variant="ghost" size="sm">
                     ☰
                   </Button>
