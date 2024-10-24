@@ -6,7 +6,7 @@ import connectToDb from "@/lib/connectToDb";
 // import { generateToken } from "@/lib/generateToken";
 
 export const POST = async (request: NextRequest) => {
-  connectToDb();
+  await connectToDb();
   try {
     const { name, email, password, role } = await request.json();
     const existingUser = await User.findOne({ email });
@@ -24,18 +24,11 @@ export const POST = async (request: NextRequest) => {
       role,
     });
     await newUser.save();
-    // const token = generateToken(newUser._id.toString(), newUser.email);
     const response = NextResponse.json(
       { user: newUser, success: true },
       { status: 201 }
     );
-    // response.cookies.set("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: true,
-    //   maxAge: 60 * 60 * 24,
-    //   path: "/",
-    // });
+
     return response;
   } catch (error: unknown) {
     if (error instanceof AxiosError) {

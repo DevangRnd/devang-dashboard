@@ -73,8 +73,8 @@ const LoginPage = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter Your Email Here.."
                 required
+                placeholder="Enter Your Email Here.."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />

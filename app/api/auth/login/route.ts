@@ -6,10 +6,15 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDb from "@/lib/connectToDb";
 
 export const POST = async (request: NextRequest) => {
+  const { email, password } = await request.json();
+  if (!email || !password) {
+    return NextResponse.json(
+      { message: "All Fields Are Required" },
+      { status: 404 }
+    );
+  }
   await connectToDb();
   try {
-    const { email, password } = await request.json();
-
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {

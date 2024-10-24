@@ -24,7 +24,7 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { signUp, isLoading, isError } = useUserStore();
+  const { signUp, isLoading } = useUserStore();
   const passwordCriteria = [
     { label: "At least 8 characters", regex: /.{8,}/ },
     // { label: "At least one uppercase letter", regex: /[A-Z]/ },
@@ -61,7 +61,7 @@ const SignUpPage = () => {
       } catch (error) {
         if (error instanceof Error) {
           toast({
-            title: isError || "Error Occured",
+            title: error?.message || "Error Occured",
             variant: "destructive",
           });
         } else {
