@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
-import { Montserrat } from "next/font/google";
+// import { Roboto_Mono } from "next/font/google";
+import { Roboto_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 
-const monsterrat = Montserrat({
+const roboto_mono = Roboto_Mono({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   subsets: ["latin"],
 });
@@ -21,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={monsterrat.className}>
+      <body className={roboto_mono.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Toaster />

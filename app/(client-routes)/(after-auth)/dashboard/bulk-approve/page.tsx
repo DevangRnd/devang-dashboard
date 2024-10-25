@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { TableIcon } from "lucide-react";
-
+import { FileUpload } from "@/components/ui/file-upload";
 import { useRouter } from "next/navigation";
 const mockData = Array.from({ length: 50 }, (_, index) => ({
   imei: Math.floor(
@@ -49,7 +49,7 @@ const BulkApprove = () => {
   const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center">
-      <Card className="w-full">
+      {/* <Card className="w-full">
         <CardHeader>
           <CardTitle>Bulk Approve</CardTitle>
         </CardHeader>
@@ -62,7 +62,8 @@ const BulkApprove = () => {
             <Button className="w-full">Submit</Button>
           </form>
         </CardContent>
-      </Card>
+      </Card> */}
+      <FileUpload />
       <div className=" px-4 py-2 overflow-x-auto">
         <Table className="w-full">
           <TableHeader className="bg-muted">

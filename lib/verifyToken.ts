@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 interface DecodedToken {
   userId: string;
@@ -7,13 +7,28 @@ interface DecodedToken {
   exp: number;
 }
 
-export function verifyToken(token: string): DecodedToken | null {
+// Create a TextEncoder to convert the secret
+const textEncoder = new TextEncoder();
+
+export async function verifyToken(token: string): Promise<DecodedToken | null> {
+  if (!process.env.JWT_SECRET) {
+    console.error("JWT_SECRET is not defined");
+    return null;
+  }
+
   try {
-    const decoded = jwt.verify(
+    const { payload } = await jwtVerify(
       token,
-      process.env.JWT_SECRET as string
-    ) as DecodedToken;
-    return decoded;
+      textEncoder.encode(process.env.JWT_SECRET)
+    );
+
+    // Cast the payload to our DecodedToken interface
+    return {
+      userId: payload.userId as string,
+      email: payload.email as string,
+      iat: payload.iat as number,
+      exp: payload.exp as number,
+    };
   } catch (error) {
     console.error("Error verifying token:", error);
     return null;

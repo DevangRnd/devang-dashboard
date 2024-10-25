@@ -18,13 +18,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-
 import { useEffect, useState } from "react";
-
 import WelcomeCard from "@/components/WelcomeCard";
+
 const DashboardPage = () => {
   const { isLoading } = useUserStore();
-
   const pathname = usePathname();
 
   const mockData = [
@@ -57,7 +55,7 @@ const DashboardPage = () => {
       category: "Lights Info",
       hasView: true,
       viewPath: `${pathname}/faulty-lights`,
-      info: "This card shows the faulty  lights.",
+      info: "This card shows the faulty lights.",
     },
     {
       title: "UNPLUGGED CONTROLLERS",
@@ -90,7 +88,7 @@ const DashboardPage = () => {
       category: "Location Info",
       hasView: true,
       viewPath: `${pathname}/total-blocks`,
-      info: "The total No of districts.",
+      info: "The total No of blocks.",
     },
     {
       title: "TOTAL PANCHAYATS",
@@ -135,6 +133,7 @@ const DashboardPage = () => {
       info: "The total amount of energy saved.",
     },
   ];
+
   interface DashboardData {
     title: string;
     value: number | string;
@@ -146,6 +145,7 @@ const DashboardPage = () => {
     viewPath?: string;
     info: string;
   }
+
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -153,6 +153,7 @@ const DashboardPage = () => {
   }, []);
 
   if (!isMounted) return null;
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -188,30 +189,30 @@ const DashboardPage = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="w-4/5 mx-auto">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <WelcomeCard />
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-8"
+        className="space-y-12"
       >
         {Object.entries(groupedData).map(([category, items], categoryIndex) => (
           <motion.div
             key={category}
             variants={categoryVariants}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+            className="space-y-4"
           >
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white bg-gray-100 dark:bg-gray-700 p-4">
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">
               {category}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {items.map((data, index) => (
                 <DashboardCard
                   key={`${data.title}-${index}`}
