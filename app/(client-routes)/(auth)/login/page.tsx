@@ -65,7 +65,7 @@ const LoginPage = () => {
 
   const isLoginDisabled = !email || !password;
 
-  if (isLoading || user) {
+  if (isLoading && user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-pink-300 to-blue-600 dark:from-slate-900 dark:to-slate-700">
         <FlipWords
@@ -79,8 +79,9 @@ const LoginPage = () => {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-r from-fuchsia-300 to-rose-200 dark:from-slate-900 dark:to-slate-700">
       <div className="mx-auto flex w-full max-w-7xl">
-        <div className="flex w-1/2 items-center justify-center p-8">
+        <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
           <Card className="relative w-full max-w-md">
+            {/* Dark Mode Switch */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="ml-4 mt-4" variant="outline" size="icon">
@@ -167,13 +168,13 @@ const LoginPage = () => {
             </form>
           </Card>
         </div>
-        <div className="flex w-1/2 items-center justify-center p-8">
+        <div className="hidden w-1/2 items-center justify-center p-8 lg:flex">
           <div className="w-full max-w-md scale-150">
             <Lottie animationData={solarAnimation} loop />
           </div>
         </div>
       </div>
-      <span className="font-bold text-black dark:text-white">
+      <span className="text-center font-bold text-black dark:text-white">
         &copy; {new Date().getFullYear()} MukhyaMantri Solar Street Light Yojana
       </span>
     </div>

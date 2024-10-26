@@ -48,7 +48,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export default function AllusPage() {
+export default function AllUsersPage() {
   const { getAllUsers, allUsers, signUp, isLoading, deleteUser, user } =
     useUserStore();
 
@@ -84,11 +84,12 @@ export default function AllusPage() {
       }
     }
   };
-  const handleDeleteu = async (uId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     try {
-      await deleteUser(uId);
+      await deleteUser(userId);
       toast({
-        title: "u Deleted successfully!",
+        title: "User Deleted successfully!",
+        duration: 2000,
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -112,7 +113,7 @@ export default function AllusPage() {
         </DrawerTrigger>
         <DrawerContent className="sm:max-lg:h-screen">
           <DrawerHeader>
-            <DrawerTitle>Add u</DrawerTitle>
+            <DrawerTitle>Add User</DrawerTitle>
             <DrawerDescription>
               Fill in the details to add a new user.
             </DrawerDescription>
@@ -156,7 +157,7 @@ export default function AllusPage() {
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="production">Production</SelectItem>
-                  <SelectItem value="u">u</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -167,7 +168,7 @@ export default function AllusPage() {
                   Adding
                 </Button>
               ) : (
-                <Button type="submit">Add u</Button>
+                <Button type="submit">Add User</Button>
               )}
 
               <DrawerClose asChild>
@@ -182,6 +183,7 @@ export default function AllusPage() {
         <TableHeader>
           <TableRow className="bg-blue-400/50 hover:bg-blue-400/65">
             <TableHead className="text-white">Name</TableHead>
+            <TableHead className="text-white">E-Mail</TableHead>
             <TableHead className="text-white">Role</TableHead>
             <TableHead className="text-white">Created At</TableHead>
             <TableHead className="text-white">Actions</TableHead>
@@ -194,6 +196,7 @@ export default function AllusPage() {
               key={u._id}
             >
               <TableCell>{u.name}</TableCell>
+              <TableCell>{u.email}</TableCell>
               <TableCell>{u.role}</TableCell>
               <TableCell>
                 {u.createdAt
@@ -241,7 +244,7 @@ export default function AllusPage() {
                             <Button
                               type="button"
                               variant="destructive"
-                              onClick={() => handleDeleteu(u._id)}
+                              onClick={() => handleDeleteUser(u._id)}
                             >
                               Delete
                             </Button>

@@ -69,7 +69,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error;
     }
   },
-
   login: async (email: string, password: string) => {
     set({ isLoading: true });
     try {
@@ -92,7 +91,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error;
     }
   },
-
   logout: async () => {
     set({ isLoading: true });
     try {
@@ -107,7 +105,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error;
     }
   },
-
   getCurrentUser: async () => {
     set({ isLoading: true });
     const storedUser = getStoredUser();
@@ -135,7 +132,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error;
     }
   },
-
   getAllUsers: async () => {
     set({ isLoading: true });
     try {
@@ -154,7 +150,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error;
     }
   },
-
   getSingleUser: async (userId: string) => {
     set({ isLoading: true });
     try {
