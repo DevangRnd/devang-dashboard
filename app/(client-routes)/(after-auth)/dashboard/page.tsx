@@ -21,11 +21,30 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import WelcomeCard from "@/components/WelcomeCard";
 
+interface DashboardData {
+  title: string;
+  value: number | string;
+  color: string;
+  iconColor: string;
+  icon: LucideIcon;
+  category: string;
+  hasView: boolean;
+  viewPath?: string;
+  info: string;
+}
+
 const DashboardPage = () => {
   const { isLoading } = useUserStore();
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
 
-  const mockData = [
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
+  const mockData: DashboardData[] = [
     {
       title: "SOLAR STREET LIGHTS",
       value: 16899,
@@ -134,32 +153,13 @@ const DashboardPage = () => {
     },
   ];
 
-  interface DashboardData {
-    title: string;
-    value: number | string;
-    color: string;
-    iconColor: string;
-    icon: LucideIcon;
-    category: string;
-    hasView: boolean;
-    viewPath?: string;
-    info: string;
-  }
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) return null;
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
+        delayChildren: 0.3,
       },
     },
   };
@@ -173,6 +173,19 @@ const DashboardPage = () => {
         duration: 0.5,
       },
     },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    }),
   };
 
   const groupedData = mockData.reduce<Record<string, DashboardData[]>>(
@@ -214,18 +227,22 @@ const DashboardPage = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {items.map((data, index) => (
-                <DashboardCard
+                <motion.div
                   key={`${data.title}-${index}`}
-                  title={data.title}
-                  value={data.value}
-                  icon={data.icon}
-                  color={data.color}
-                  iconColor={data.iconColor}
-                  index={categoryIndex * items.length + index}
-                  info={data.info}
-                  hasView={data.hasView}
-                  viewPath={data.viewPath}
-                />
+                  variants={cardVariants}
+                  custom={categoryIndex * items.length + index}
+                >
+                  <DashboardCard
+                    title={data.title}
+                    value={data.value}
+                    icon={data.icon}
+                    color={data.color}
+                    iconColor={data.iconColor}
+                    info={data.info}
+                    hasView={data.hasView}
+                    viewPath={data.viewPath}
+                  />
+                </motion.div>
               ))}
             </div>
           </motion.div>

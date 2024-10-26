@@ -145,7 +145,7 @@ export default function Sidebar() {
 
   const hasAccessToAnySubItem = (item: any) => {
     return item.subItems.some((subItem: any) =>
-      subItem.roles.includes(user?.role)
+      subItem.roles.includes(user?.role),
     );
   };
 
@@ -179,11 +179,11 @@ export default function Sidebar() {
   return (
     <div
       className={cn(
-        "flex flex-col h-[100dvh] bg-background dark:bg-slate-700 border-r transition-all duration-300 ease-in-out relative",
-        isExpanded ? "w-64 rounded-tr-3xl rounded-br-3xl" : "w-20"
+        "relative flex h-[100dvh] flex-col border-r bg-background transition-all duration-300 ease-in-out dark:bg-slate-700",
+        isExpanded ? "w-64 rounded-br-3xl rounded-tr-3xl" : "w-20",
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between border-b p-4">
         <div className={cn("overflow-hidden", !isExpanded && "w-0")}>
           {isExpanded && <span className="font-semibold">Ielecssol</span>}
         </div>
@@ -197,13 +197,13 @@ export default function Sidebar() {
           <ChevronRight
             className={cn(
               "transition-transform duration-200",
-              isExpanded && "rotate-180"
+              isExpanded && "rotate-180",
             )}
           />
         </Button>
       </div>
 
-      <nav className="flex-1 px-2 py-4 overflow-y-auto">
+      <nav className="flex-1 overflow-y-auto px-2 py-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             if (
@@ -220,8 +220,8 @@ export default function Sidebar() {
                     <Button
                       variant="ghost"
                       className={cn(
-                        "w-full flex items-center py-3 transition-colors duration-200",
-                        isExpanded ? "justify-start px-4" : "justify-center"
+                        "flex w-full items-center py-3 transition-colors duration-200",
+                        isExpanded ? "justify-start px-4" : "justify-center",
                       )}
                       onClick={() => toggleSubmenu(item.id)}
                     >
@@ -234,7 +234,7 @@ export default function Sidebar() {
                           <ChevronDown
                             className={cn(
                               "ml-auto h-4 w-4 transition-transform duration-200",
-                              openSubmenu === item.id && "rotate-180"
+                              openSubmenu === item.id && "rotate-180",
                             )}
                           />
                         </>
@@ -261,7 +261,7 @@ export default function Sidebar() {
                                       className={cn(
                                         "w-full justify-start text-sm",
                                         isActive(getFullPath(subItem.href)) &&
-                                          "bg-accent text-accent-foreground"
+                                          "bg-accent text-accent-foreground",
                                       )}
                                     >
                                       {subItem.label}
@@ -280,10 +280,10 @@ export default function Sidebar() {
                     <Button
                       variant="ghost"
                       className={cn(
-                        "w-full flex items-center py-3 transition-colors duration-200",
+                        "flex w-full items-center py-3 transition-colors duration-200",
                         isExpanded ? "justify-start px-4" : "justify-center",
                         isActive(getFullPath(item.href)) &&
-                          "bg-accent text-accent-foreground"
+                          "bg-accent text-accent-foreground",
                       )}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -305,7 +305,7 @@ export default function Sidebar() {
         <div
           className={cn(
             "flex items-center p-4",
-            isExpanded ? "justify-between" : "justify-center"
+            isExpanded ? "justify-between" : "justify-center",
           )}
         >
           <TooltipProvider>
@@ -323,7 +323,7 @@ export default function Sidebar() {
             </Tooltip>
           </TooltipProvider>
           {isExpanded && (
-            <span className="text-sm font-medium dark:text-white ml-3 truncate">
+            <span className="ml-3 truncate text-sm font-medium dark:text-white">
               {user?.name}
             </span>
           )}
@@ -332,7 +332,7 @@ export default function Sidebar() {
         <div
           className={cn(
             "flex items-center p-4",
-            isExpanded ? "justify-between" : "justify-center"
+            isExpanded ? "justify-between" : "justify-center",
           )}
         >
           {isExpanded && (
@@ -342,7 +342,7 @@ export default function Sidebar() {
           )}
           <button
             onClick={toggleTheme}
-            className="relative w-12 h-6 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-yellow-400"
+            className="relative h-6 w-12 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-yellow-400"
             style={{
               backgroundColor: mounted
                 ? theme === "dark"
@@ -355,10 +355,10 @@ export default function Sidebar() {
             {mounted && (
               <>
                 <div
-                  className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-300 ${
+                  className={`absolute left-1 top-1 h-4 w-4 rounded-full transition-all duration-300 ${
                     theme === "dark"
-                      ? "bg-gray-600 translate-x-0"
-                      : "bg-white translate-x-6"
+                      ? "translate-x-0 bg-gray-600"
+                      : "translate-x-6 bg-white"
                   }`}
                 >
                   <div
@@ -366,8 +366,8 @@ export default function Sidebar() {
                       theme === "dark" ? "opacity-0" : "opacity-100"
                     }`}
                   >
-                    <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 rotate-45" />
-                    <div className="absolute top-1/4 left-1/2 w-px h-2 bg-yellow-400 transform -translate-x-1/2 -rotate-45" />
+                    <div className="absolute left-1/2 top-1/4 h-2 w-px -translate-x-1/2 rotate-45 transform bg-yellow-400" />
+                    <div className="absolute left-1/2 top-1/4 h-2 w-px -translate-x-1/2 -rotate-45 transform bg-yellow-400" />
                   </div>
                 </div>
                 <div
@@ -387,12 +387,12 @@ export default function Sidebar() {
         <Button
           variant="ghost"
           className={cn(
-            "w-full flex items-center py-3 transition-colors duration-200 my-2",
-            isExpanded ? "justify-start px-4" : "justify-center"
+            "my-2 flex w-full items-center py-3 transition-colors duration-200",
+            isExpanded ? "justify-start px-4" : "justify-center",
           )}
           onClick={() => setIsLogoutModalOpen(true)}
         >
-          <LogOut className="h-5 w-5 flex-shrink-0 mr-3" />
+          <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
           {isExpanded && <span>Logout</span>}
         </Button>
       </div>
@@ -414,7 +414,7 @@ export default function Sidebar() {
             </Button>
             {isLoading ? (
               <Button variant="destructive" disabled>
-                <Loader2 className="animate-spin h-4 w-4 mr-4" />
+                <Loader2 className="mr-4 h-4 w-4 animate-spin" />
                 Logout
               </Button>
             ) : (
