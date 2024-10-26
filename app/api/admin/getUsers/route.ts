@@ -1,8 +1,8 @@
 import connectToDb from "@/lib/connectToDb";
 import User from "@/models/UserModel";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export const GET = async (request: NextRequest) => {
+export const GET = async () => {
   await connectToDb();
   try {
     const users = await User.find({}).sort({ name: 1 });
@@ -11,7 +11,7 @@ export const GET = async (request: NextRequest) => {
     console.error("Error fetching users:", error);
     return NextResponse.json(
       { message: "Failed to fetch users", success: false },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
   Table,
@@ -19,7 +16,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { useRouter } from "next/navigation";
 const mockData = Array.from({ length: 50 }, (_, index) => ({
   imei: Math.floor(
-    100000000000000 + Math.random() * 900000000000000
+    100000000000000 + Math.random() * 900000000000000,
   ).toString(),
   rms: Math.floor(1000000000000 + Math.random() * 9000000000000).toString(),
   pv: `PV${index + 1}`,
@@ -44,7 +41,7 @@ const BulkApprove = () => {
   const totalPages = Math.ceil(mockData.length / rowsPerPage);
   const currentRows = mockData.slice(
     (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+    currentPage * rowsPerPage,
   );
   const router = useRouter();
   return (
@@ -64,7 +61,7 @@ const BulkApprove = () => {
         </CardContent>
       </Card> */}
       <FileUpload />
-      <div className=" px-4 py-2 overflow-x-auto">
+      <div className="overflow-x-auto px-4 py-2">
         <Table className="w-full">
           <TableHeader className="bg-muted">
             <TableRow>
@@ -92,7 +89,7 @@ const BulkApprove = () => {
             {currentRows.map((row, index) => (
               <TableRow
                 key={index}
-                className={`text-center text-xs py-5 ${
+                className={`py-5 text-center text-xs ${
                   index % 2 === 0
                     ? "bg-sky-300 hover:bg-sky-500 dark:bg-slate-500 dark:hover:bg-slate-500"
                     : "bg-muted hover:bg-muted"
@@ -139,7 +136,7 @@ const BulkApprove = () => {
             ))}
           </TableBody>
         </Table>
-        <div className="flex justify-between items-center mt-4">
+        <div className="mt-4 flex items-center justify-between">
           <Button
             className="disabled:cursor-not-allowed"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
