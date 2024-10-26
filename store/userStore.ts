@@ -18,7 +18,7 @@ interface UserStore {
     name: string,
     email: string,
     password: string,
-    role: string
+    role: string,
   ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -26,6 +26,7 @@ interface UserStore {
   getCurrentUser: () => Promise<void>;
   getAllUsers: () => Promise<void>;
   getSingleUser: (userId: string) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
 }
 
 const getStoredUser = (): User | null => {
@@ -36,7 +37,7 @@ const getStoredUser = (): User | null => {
   return null;
 };
 
-export const useUserStore = create<UserStore>((set) => ({
+export const useUserStore = create<UserStore>((set, get) => ({
   user: getStoredUser(),
   isLoading: false,
   allUsers: [],
@@ -46,7 +47,7 @@ export const useUserStore = create<UserStore>((set) => ({
     name: string,
     email: string,
     password: string,
-    role: string
+    role: string,
   ) => {
     set({ isLoading: true });
     try {
@@ -158,7 +159,7 @@ export const useUserStore = create<UserStore>((set) => ({
     set({ isLoading: true });
     try {
       const response = await axios.get(
-        `/api/admin/getSingleUserDetails/${userId}`
+        `/api/admin/getSingleUserDetails/${userId}`,
       );
       if (response.data.success) {
         set({ singleUser: response.data.user, isLoading: false });
@@ -170,6 +171,24 @@ export const useUserStore = create<UserStore>((set) => ({
       set({ isLoading: false });
       if (axios.isAxiosError(error) && error.response) {
         throw new Error(error.response.data.message || "Failed to fetch user");
+      }
+      throw error;
+    }
+  },
+  deleteUser: async (userId: string) => {
+    set({ isLoading: true });
+    try {
+      const response = await axios.delete(`/api/admin/deleteUser/${userId}`);
+      const userToBeDeleted = response.data.user;
+      const currentUsers = get().allUsers;
+      const updatedUsers = currentUsers.filter(
+        (user) => user._id !== userToBeDeleted._id,
+      );
+      set({ allUsers: updatedUsers, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || "Failed to delete user");
       }
       throw error;
     }

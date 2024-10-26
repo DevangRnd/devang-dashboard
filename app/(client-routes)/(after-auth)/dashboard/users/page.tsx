@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useUserStore } from "@/store/userStore";
-import Link from "next/link";
+
 import { useEffect, useState } from "react";
 
 import {
@@ -34,11 +34,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { EyeIcon, Loader2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function AllUsersPage() {
-  const { getAllUsers, allUsers, signUp, isLoading } = useUserStore();
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+export default function AllusPage() {
+  const { getAllUsers, allUsers, signUp, isLoading, deleteUser, user } =
+    useUserStore();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,21 +84,40 @@ export default function AllUsersPage() {
       }
     }
   };
-
+  const handleDeleteu = async (uId: string) => {
+    try {
+      await deleteUser(uId);
+      toast({
+        title: "u Deleted successfully!",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: error?.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Unexpected Error Occured",
+          variant: "destructive",
+        });
+      }
+    }
+  };
   return (
-    <div className="">
+    <div>
       <Drawer>
         <DrawerTrigger asChild>
           <Button className="mb-4">Add User</Button>
         </DrawerTrigger>
-        <DrawerContent>
+        <DrawerContent className="sm:max-lg:h-screen">
           <DrawerHeader>
-            <DrawerTitle>Add User</DrawerTitle>
+            <DrawerTitle>Add u</DrawerTitle>
             <DrawerDescription>
               Fill in the details to add a new user.
             </DrawerDescription>
           </DrawerHeader>
-          <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 p-4">
             <div>
               <Label htmlFor="name">Name</Label>
               <Input
@@ -125,7 +156,7 @@ export default function AllUsersPage() {
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="production">Production</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="u">u</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -136,7 +167,7 @@ export default function AllUsersPage() {
                   Adding
                 </Button>
               ) : (
-                <Button type="submit">Add User</Button>
+                <Button type="submit">Add u</Button>
               )}
 
               <DrawerClose asChild>
@@ -147,26 +178,26 @@ export default function AllUsersPage() {
         </DrawerContent>
       </Drawer>
       <Table>
-        <TableCaption>List Of All Users</TableCaption>
+        <TableCaption>List Of All us</TableCaption>
         <TableHeader>
           <TableRow className="bg-blue-400/50 hover:bg-blue-400/65">
             <TableHead className="text-white">Name</TableHead>
             <TableHead className="text-white">Role</TableHead>
             <TableHead className="text-white">Created At</TableHead>
-            <TableHead className="text-white">View User</TableHead>
+            <TableHead className="text-white">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {allUsers.map((user, index) => (
+          {allUsers.map((u, index) => (
             <TableRow
               className={cn(index % 2 === 0 ? "bg-muted" : "")}
-              key={user._id}
+              key={u._id}
             >
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.role}</TableCell>
+              <TableCell>{u.name}</TableCell>
+              <TableCell>{u.role}</TableCell>
               <TableCell>
-                {user.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString("en-GB", {
+                {u.createdAt
+                  ? new Date(u.createdAt).toLocaleDateString("en-GB", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -177,9 +208,49 @@ export default function AllUsersPage() {
                   : "N/A"}
               </TableCell>
               <TableCell>
-                <Link href={`/dashboard/users/${user._id}`}>
-                  <EyeIcon />
-                </Link>
+                <div className="flex gap-5">
+                  <Pencil size={20} />
+                  {u._id === user?._id ? null : (
+                    <Dialog>
+                      <DialogTrigger>
+                        <Trash2 size={20} />
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>
+                            Are you sure you want to delete this u?
+                          </DialogTitle>
+                          <DialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete the u account and remove their data from our
+                            servers.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          {isLoading ? (
+                            <Button>
+                              <Loader2 className="mr-3 h-4 w-4 animate-spin" />
+                              Deleting
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={() => handleDeleteu(u._id)}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
