@@ -30,6 +30,7 @@ import {
 
 const LoginPage = () => {
   const { login, isLoading, user } = useUserStore();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -44,6 +45,7 @@ const LoginPage = () => {
         description: "Redirecting..",
         duration: 2000,
       });
+
       router.replace("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
@@ -65,7 +67,7 @@ const LoginPage = () => {
 
   const isLoginDisabled = !email || !password;
 
-  if (isLoading && user) {
+  if (isLoading || user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-pink-300 to-blue-600 dark:from-slate-900 dark:to-slate-700">
         <FlipWords
@@ -138,13 +140,13 @@ const LoginPage = () => {
                     <EyeOff
                       onClick={() => setViewPassword(!viewPassword)}
                       size={20}
-                      className="absolute right-3 top-[1.93rem] cursor-pointer"
+                      className="absolute right-3 top-[1.99rem] cursor-pointer"
                     />
                   ) : (
                     <Eye
                       onClick={() => setViewPassword(!viewPassword)}
                       size={20}
-                      className="absolute right-3 top-[1.93rem] cursor-pointer"
+                      className="absolute right-3 top-[1.99rem] cursor-pointer"
                     />
                   )}
                 </div>
@@ -174,7 +176,7 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
-      <span className="text-center font-bold text-black dark:text-white">
+      <span className="px-4 text-center font-bold text-black dark:text-white">
         &copy; {new Date().getFullYear()} MukhyaMantri Solar Street Light Yojana
       </span>
     </div>

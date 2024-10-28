@@ -2,12 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useUserStore } from "@/store/userStore";
 import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/userStore";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 import {
   ChevronRight,
   LayoutDashboard,
@@ -18,25 +33,24 @@ import {
   LogOut,
   ChevronDown,
   Loader2,
+  Sun,
+  Moon,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "@/hooks/use-toast";
 
-const menuItems = [
+interface MenuItem {
+  id: string;
+  icon: React.ElementType;
+  label: string;
+  href?: string;
+  roles: string[];
+  subItems?: {
+    label: string;
+    href: string;
+    roles: string[];
+  }[];
+}
+
+const menuItems: MenuItem[] = [
   {
     id: "dashboard",
     icon: LayoutDashboard,
@@ -124,7 +138,9 @@ export default function Sidebar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
   if (!mounted) return null;
+
   const toggleSubmenu = (id: string) => {
     if (!isExpanded) {
       setIsExpanded(true);
@@ -139,13 +155,13 @@ export default function Sidebar() {
 
   const isActive = (href: string) => pathname === href;
 
-  const hasAccessToItem = (item: any) => {
-    return item.roles.includes(user?.role);
+  const hasAccessToItem = (item: MenuItem) => {
+    return item.roles.includes(user?.role || "");
   };
 
-  const hasAccessToAnySubItem = (item: any) => {
-    return item.subItems.some((subItem: any) =>
-      subItem.roles.includes(user?.role),
+  const hasAccessToAnySubItem = (item: MenuItem) => {
+    return item.subItems?.some((subItem) =>
+      subItem.roles.includes(user?.role || ""),
     );
   };
 
@@ -158,17 +174,11 @@ export default function Sidebar() {
       });
       router.replace("/login");
     } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error?.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Unexpected Error Occured",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title:
+          error instanceof Error ? error.message : "Unexpected Error Occurred",
+        variant: "destructive",
+      });
     }
   };
 
@@ -179,15 +189,14 @@ export default function Sidebar() {
   return (
     <div
       className={cn(
-        "relative flex h-[100dvh] flex-col border-r bg-background transition-all duration-300 ease-in-out dark:bg-slate-700",
-        isExpanded ? "w-64 rounded-br-3xl rounded-tr-3xl" : "w-20",
+        "relative flex h-[100dvh] flex-col border-r bg-background transition-all duration-300 ease-in-out",
+        isExpanded ? "w-64" : "w-20",
       )}
     >
       <div className="flex items-center justify-between border-b p-4">
         <div className={cn("overflow-hidden", !isExpanded && "w-0")}>
           {isExpanded && <span className="font-semibold">Ielecssol</span>}
         </div>
-
         <Button
           variant="ghost"
           size="icon"
@@ -216,11 +225,11 @@ export default function Sidebar() {
             return (
               <li key={item.id}>
                 {item.subItems ? (
-                  <>
+                  <div>
                     <Button
                       variant="ghost"
                       className={cn(
-                        "flex w-full items-center py-3 transition-colors duration-200",
+                        "flex w-full items-center py-2 transition-colors duration-200",
                         isExpanded ? "justify-start px-4" : "justify-center",
                       )}
                       onClick={() => toggleSubmenu(item.id)}
@@ -228,7 +237,7 @@ export default function Sidebar() {
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {isExpanded && (
                         <>
-                          <span className="ml-3 text-sm font-medium dark:text-white">
+                          <span className="ml-3 text-sm font-medium">
                             {item.label}
                           </span>
                           <ChevronDown
@@ -240,55 +249,48 @@ export default function Sidebar() {
                         </>
                       )}
                     </Button>
-                    {isExpanded && (
-                      <Collapsible open={openSubmenu === item.id}>
-                        <CollapsibleContent>
-                          <ul className="mt-2 space-y-1 px-4">
-                            {item.subItems.map((subItem) => {
-                              if (!subItem.roles.includes(user?.role)) {
-                                return null;
-                              }
+                    {isExpanded && openSubmenu === item.id && (
+                      <ul className="mt-2 space-y-1 px-4">
+                        {item.subItems.map((subItem) => {
+                          if (!subItem.roles.includes(user?.role || "")) {
+                            return null;
+                          }
 
-                              return (
-                                <li key={subItem.label}>
-                                  <Link
-                                    href={getFullPath(subItem.href)}
-                                    passHref
-                                  >
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className={cn(
-                                        "w-full justify-start text-sm",
-                                        isActive(getFullPath(subItem.href)) &&
-                                          "bg-accent text-accent-foreground",
-                                      )}
-                                    >
-                                      {subItem.label}
-                                    </Button>
-                                  </Link>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </CollapsibleContent>
-                      </Collapsible>
+                          return (
+                            <li key={subItem.label}>
+                              <Link href={getFullPath(subItem.href)} passHref>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={cn(
+                                    "w-full justify-start text-sm",
+                                    isActive(getFullPath(subItem.href)) &&
+                                      "bg-accent text-accent-foreground",
+                                  )}
+                                >
+                                  {subItem.label}
+                                </Button>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
                     )}
-                  </>
+                  </div>
                 ) : (
-                  <Link href={getFullPath(item.href)} passHref>
+                  <Link href={getFullPath(item.href || "")} passHref>
                     <Button
                       variant="ghost"
                       className={cn(
-                        "flex w-full items-center py-3 transition-colors duration-200",
+                        "flex w-full items-center py-2 transition-colors duration-200",
                         isExpanded ? "justify-start px-4" : "justify-center",
-                        isActive(getFullPath(item.href)) &&
+                        isActive(getFullPath(item.href || "")) &&
                           "bg-accent text-accent-foreground",
                       )}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {isExpanded && (
-                        <span className="ml-3 text-sm font-medium dark:text-white">
+                        <span className="ml-3 text-sm font-medium">
                           {item.label}
                         </span>
                       )}
@@ -301,13 +303,8 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      <div className="mt-auto border-t">
-        <div
-          className={cn(
-            "flex items-center p-4",
-            isExpanded ? "justify-between" : "justify-center",
-          )}
-        >
+      <div className="mt-auto border-t p-4">
+        <div className="flex items-center justify-between">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -323,78 +320,58 @@ export default function Sidebar() {
             </Tooltip>
           </TooltipProvider>
           {isExpanded && (
-            <span className="ml-3 truncate text-sm font-medium dark:text-white">
+            <span className="ml-3 truncate text-sm font-medium">
               {user?.name}
             </span>
           )}
         </div>
 
-        <div
-          className={cn(
-            "flex items-center p-4",
-            isExpanded ? "justify-between" : "justify-center",
-          )}
-        >
-          {isExpanded && (
-            <span className="text-sm font-medium dark:text-white">
-              {mounted && (theme === "dark" ? "Dark Mode" : "Light Mode")}
-            </span>
-          )}
-          <button
-            onClick={toggleTheme}
-            className="relative h-6 w-12 rounded-full p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-yellow-400"
-            style={{
-              backgroundColor: mounted
-                ? theme === "dark"
-                  ? "#1f2937"
-                  : "#fde68a"
-                : "transparent",
-            }}
-          >
-            <span className="sr-only">Toggle theme</span>
-            {mounted && (
-              <>
-                <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full transition-all duration-300 ${
-                    theme === "dark"
-                      ? "translate-x-0 bg-gray-600"
-                      : "translate-x-6 bg-white"
-                  }`}
-                >
-                  <div
-                    className={`absolute inset-0 transition-opacity duration-300 ${
-                      theme === "dark" ? "opacity-0" : "opacity-100"
-                    }`}
-                  >
-                    <div className="absolute left-1/2 top-1/4 h-2 w-px -translate-x-1/2 rotate-45 transform bg-yellow-400" />
-                    <div className="absolute left-1/2 top-1/4 h-2 w-px -translate-x-1/2 -rotate-45 transform bg-yellow-400" />
-                  </div>
-                </div>
-                <div
-                  className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
-                    theme === "dark" ? "opacity-0" : "opacity-40"
-                  }`}
-                  style={{
-                    background:
-                      "radial-gradient(circle, #fef08a, transparent 70%)",
-                  }}
-                />
-              </>
-            )}
-          </button>
-        </div>
+        <div className="mt-4 flex flex-col space-y-2">
+          {isExpanded ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+              className="justify-start"
+            >
+              {theme === "dark" ? (
+                <Sun className="mr-2 h-4 w-4" />
+              ) : (
+                <Moon className="mr-2 h-4 w-4" />
+              )}
 
-        <Button
-          variant="ghost"
-          className={cn(
-            "my-2 flex w-full items-center py-3 transition-colors duration-200",
-            isExpanded ? "justify-start px-4" : "justify-center",
+              <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+            </Button>
+          ) : (
+            <Button variant="outline" size="icon" onClick={toggleTheme}>
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
           )}
-          onClick={() => setIsLogoutModalOpen(true)}
-        >
-          <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
-          {isExpanded && <span>Logout</span>}
-        </Button>
+          {isExpanded ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-start text-red-600"
+              onClick={() => setIsLogoutModalOpen(true)}
+            >
+              <LogOut className="mr-2 h-4 w-4 flex-shrink-0" />
+              <span>Logout</span>
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="justify-start text-red-600"
+              onClick={() => setIsLogoutModalOpen(true)}
+            >
+              <LogOut className="h-4 w-4 flex-shrink-0" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <Dialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
@@ -412,16 +389,20 @@ export default function Sidebar() {
             >
               Cancel
             </Button>
-            {isLoading ? (
-              <Button variant="destructive" disabled>
-                <Loader2 className="mr-4 h-4 w-4 animate-spin" />
-                Logout
-              </Button>
-            ) : (
-              <Button variant="destructive" onClick={handleLogOut}>
-                Logout
-              </Button>
-            )}
+            <Button
+              variant="destructive"
+              onClick={handleLogOut}
+              disabled={isLoading || !user}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging out...
+                </>
+              ) : (
+                "Logout"
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
